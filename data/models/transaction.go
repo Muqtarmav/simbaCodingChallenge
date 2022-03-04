@@ -1,4 +1,6 @@
 package models
 
 
-type Transaction struct{}
+type Transaction struct{
+	Id int
+}

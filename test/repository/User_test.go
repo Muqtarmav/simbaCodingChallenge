@@ -1,54 +1,49 @@
 package test
 
 import (
-	"context"
-	"log"
 	"testing"
 
 	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/stretchr/testify/assert"
 )
 
-var source string = "user=postgres password=debbie200 dbname=simba_db sslmode=disable"
 
 var (
-	Db  *gorm.DB
-	err  error
+	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{} 
 )
 
-func init()  {
-	Db, err = gorm.Open("postgres", source)
-	if err!=nil{
-		log.Fatal(err.Error())
-	}
-	conn, err :=Db.DB().Conn(context.TODO())
-	if err!=nil{
-		log.Fatal(err.Error())
-	}
-	if conn!=nil{
-		log.Println("connected successfully")
-	}
-	Db.AutoMigrate(&models.User{})
-}
+
 
 func setUp() *models.User{
-	Db = Db.Delete(&models.User{}, []int{1,2,3})
 	return &models.User{
-		Id: 1,
-		Name: "John Doe",
-		Email: "johndoe@email.com",
+		Id: 3,
+		Name: "Janey Doe",
+		Email: "janeydoe@email.com",
 		Password: "1234",
 	}
 }
 
 func TestThatUserCanBeSaved(t *testing.T){ 
-	defer Db.Close()
-	user1:= setUp()
-	Db.Create(&user1)
-	returnedUser := &models.User{}
-	assert.Empty(t, returnedUser)
-	Db.Where("Id=?", 1).Omit("created_at", "updated_at").First(&returnedUser)
+	user := setUp()
+	returnedUser := userRepo.Save(user)
 	assert.NotEmpty(t, returnedUser)
+	assert.Equal(t, user.Email, returnedUser.Email)
+}
+
+func TestThatUserCanBeFoundById(t *testing.T){
+	returnedUser := userRepo.FindById(1)
+	assert.Equal(t, returnedUser.Id, 1)
+	assert.Equal(t, returnedUser.Name, "John Doe")
+}
+
+func TestThatAllUsersCanBeFound(t *testing.T){
+	allUsers:=userRepo.FindAllUsers()
+	assert.Equal(t, 3, len(allUsers))
+}
+
+func TestDeleteById(t *testing.T) {
+	assert.Equal(t, 3, len(userRepo.FindAllUsers()))
+	userRepo.DeleteById(3)
+	assert.Equal(t, 2, len(userRepo.FindAllUsers()))
 }
