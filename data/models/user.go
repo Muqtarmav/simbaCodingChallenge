@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct{
 	Id int
@@ -9,4 +11,5 @@ type User struct{
 	Password string
 	Created_at time.Time
 	Updated_at time.Time
+	Transactions []Transaction
 }
