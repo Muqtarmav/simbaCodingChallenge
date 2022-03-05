@@ -11,9 +11,9 @@ import (
 
 type UserRepository interface{
 	Save(user *models.User) *models.User
-	FindById(id int) *models.User
+	FindById(id uint) *models.User
 	FindAllUsers() []*models.User
-	DeleteById(id int)
+	DeleteById(id uint)
 }
 
 var (
@@ -22,7 +22,7 @@ var (
 	err error
 )
 
-func Connect(){
+func Connect() *gorm.DB{
 	config, err =util.LoadConfig("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge")
 	if err!=nil{
 		log.Fatal(err)
@@ -31,7 +31,9 @@ func Connect(){
 	if err!=nil{
 		log.Fatal(err)
 	}
+	Db.AutoMigrate(&models.User{}, &models.Transaction{})
 	log.Println("connected " + "to db")
+	return Db
 }
 
 type UserRepositoryImpl struct{
@@ -41,33 +43,24 @@ type UserRepositoryImpl struct{
 func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	// userRepo.l.Println("in save")
 	savedUser := &models.User{}
-	Connect()
-	defer Db.Close()
 	Db.Create(user)
-	Db.Where("Id=?", user.Id).Find(&savedUser)
-	log.Println(&savedUser)
+	Db.Where("Id=?", user.ID).Find(&savedUser)
 	return savedUser
 }
 
 
-func (userRepo *UserRepositoryImpl) FindById(id int) *models.User{
+func (userRepo *UserRepositoryImpl) FindById(id uint) *models.User{
 	savedUser := &models.User{}
-	Connect()
-	defer Db.Close()
 	Db.Where("Id=?", id).Find(&savedUser)
 	return savedUser
 }
 
 func (userRepo *UserRepositoryImpl) FindAllUsers() []*models.User{
 	var users []*models.User
-	Connect()
-	defer Db.Close()
 	Db.Find(&users)
 	return users
 }
 
-func (userRepo *UserRepositoryImpl) DeleteById(id int){
-	Connect()
-	defer Db.Close()
+func (userRepo *UserRepositoryImpl) DeleteById(id uint){
 	Db.Where("Id=?", id).Delete(&models.User{})
 }
