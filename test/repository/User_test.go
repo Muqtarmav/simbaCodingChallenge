@@ -5,6 +5,7 @@ import (
 
 	"github.com/djfemz/simbaCodingChallenge/data/models"
 	"github.com/djfemz/simbaCodingChallenge/data/repositories"
+	"github.com/djfemz/simbaCodingChallenge/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +32,7 @@ func setUp() []*models.User{
 }
 
 func TestThatUserCanBeSaved(t *testing.T){ 
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
@@ -41,7 +42,7 @@ func TestThatUserCanBeSaved(t *testing.T){
 }
 
 func TestThatUserCanBeFoundById(t *testing.T){
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
@@ -52,7 +53,7 @@ func TestThatUserCanBeFoundById(t *testing.T){
 }
 
 func TestThatAllUsersCanBeFound(t *testing.T){
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
@@ -64,7 +65,7 @@ func TestThatAllUsersCanBeFound(t *testing.T){
 }
 
 func TestDeleteById(t *testing.T) {
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()

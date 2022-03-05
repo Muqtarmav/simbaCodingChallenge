@@ -43,8 +43,10 @@ type UserRepositoryImpl struct{
 func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	// userRepo.l.Println("in save")
 	savedUser := &models.User{}
+	log.Println("user to be saved is-->", user)
 	Db.Create(user)
 	Db.Where("Id=?", user.ID).Find(&savedUser)
+	log.Println("saved user is -->", savedUser)
 	return savedUser
 }
 

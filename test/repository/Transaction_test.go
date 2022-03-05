@@ -1,57 +1,21 @@
 package test
 
 import (
-	"database/sql"
-	"fmt"
 	"testing"
 
 	"github.com/djfemz/simbaCodingChallenge/data/models"
 	"github.com/djfemz/simbaCodingChallenge/data/repositories"
-	"github.com/jinzhu/gorm"
+	"github.com/djfemz/simbaCodingChallenge/util"
 	"github.com/stretchr/testify/assert"
 )
 
-var Db = repositories.Connect()
 
 
-//clears models that are created during tests
-func DeleteCreatedModels(db *gorm.DB) func(){
-	type entity struct{
-		table string
-		keyname string 
-		key interface{}
-	}
+var (
+	Db = repositories.Connect()
+	transactionRepo repositories.TransactionRepository = &repositories.TransactionRepositoryImpl{}
+)
 
-	var entries []entity
-	hookName:="cleanupHook"
-
-	db.Callback().Create().After("gorm:create").Register(hookName,
-		 func(scope *gorm.Scope) {
-			fmt.Printf("Inserted entities of %s with %s = %v\n",
-			scope.TableName(), scope.PrimaryKey(), scope.PrimaryKeyValue())
-			entries = append(entries, entity{table: scope.TableName(), 
-			keyname: scope.PrimaryKey(), key: scope.PrimaryKeyValue()})
-		 })
-	return func() {
-		defer db.Callback().Create().Remove(hookName)
-		_, inTransaction:= db.CommonDB().(*sql.Tx)
-		tx:=db
-		if!inTransaction{
-			tx = db.Begin()
-		}
-		for i:= len(entries) -1;i>=0;i--{
-			entry := entries[i]
-			fmt.Printf("Deleting entities from %s table with key %v\n", entry.table, entry.key)
-			tx.Table(entry.table).Where(entry.keyname+"=?", entry.key).Delete("")
-		}
-		if !inTransaction{
-			tx.Commit()
-		}
-	}	 
-}
-
-
-var transactionRepo repositories.TransactionRepository = &repositories.TransactionRepositoryImpl{}
 
 func transactionSetUp() []*models.Transaction{
 	return []*models.Transaction{ {
@@ -70,7 +34,7 @@ func transactionSetUp() []*models.Transaction{
 }
 
 func TestThatTransactionCanBeSaved(t *testing.T) {
-	cleaner := DeleteCreatedModels(Db)
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
@@ -81,7 +45,7 @@ func TestThatTransactionCanBeSaved(t *testing.T) {
 
 
 func TestThatTransactionCanBeFoundById(t *testing.T){
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
@@ -92,7 +56,7 @@ func TestThatTransactionCanBeFoundById(t *testing.T){
 }
 
 func TestThatAllTransactionsCanBeRetrieved(t *testing.T){
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
@@ -104,10 +68,11 @@ func TestThatAllTransactionsCanBeRetrieved(t *testing.T){
 }
 
 func TestThatTransactionCanBeDeletedById(t *testing.T)  {
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
+	
 
 	for _, transaction := range transactions {
 		transactionRepo.Save(transaction)
@@ -117,7 +82,7 @@ func TestThatTransactionCanBeDeletedById(t *testing.T)  {
 }
 
 func TestThatATransactionCanBeDeleted(t *testing.T){
-	cleaner:=DeleteCreatedModels(Db)
+	cleaner:=util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
