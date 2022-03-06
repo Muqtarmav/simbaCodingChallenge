@@ -1,6 +1,7 @@
 package test
 
 import (
+	"log"
 	"testing"
 
 	"github.com/djfemz/simbaCodingChallenge/data/models"
@@ -50,6 +51,19 @@ func TestThatUserCanBeFoundById(t *testing.T){
 	returnedUser := userRepo.FindById(savedUser.ID)
 	assert.Equal(t, returnedUser.ID, savedUser.ID)
 	assert.Equal(t, returnedUser.Name, "Janey Doe")
+}
+
+func TestThatUserCanBeFoundByEmail(t *testing.T) {
+	cleaner:=util.DeleteCreatedModels(Db)
+	defer Db.Close()
+	defer cleaner()
+	users:= setUp()
+	for _, user := range users {
+		userRepo.Save(user)
+	}
+	foundUser := userRepo.FindByEmail(users[0].Email)
+	assert.NotEmpty(t,foundUser)
+	log.Println("found user-->", foundUser)
 }
 
 func TestThatAllUsersCanBeFound(t *testing.T){

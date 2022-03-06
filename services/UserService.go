@@ -61,7 +61,16 @@ func (userserviceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 
 
 func(userserviceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dtos.LoginResponse{
-	return dtos.LoginResponse{}
+	foundUser:=userRepo.FindByEmail(loginRequest.Email)
+	if foundUser==nil{
+		return dtos.LoginResponse{Message: "user not found"}
+	}
+
+	if decryptPassword([]byte(foundUser.Password), []byte(loginRequest.Password)){
+		return dtos.LoginResponse{ID:foundUser.ID,Message: "user loggedin successfully"}
+	}else{
+		return dtos.LoginResponse{Message: "bad login credentials"}
+	}
 }
 
 
@@ -74,4 +83,9 @@ func hashPassword(password string) (hash string, err error){
 	}
 	hash=string(byteSlice)
 	return hash, nil
+}
+
+func decryptPassword(hashedPassword, password []byte) bool{
+	err:=bcrypt.CompareHashAndPassword(hashedPassword, password)
+	return err==nil
 }

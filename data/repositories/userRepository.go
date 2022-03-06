@@ -13,6 +13,7 @@ type UserRepository interface{
 	Save(user *models.User) *models.User
 	FindById(id uint) *models.User
 	FindAllUsers() []*models.User
+	FindByEmail(email string) *models.User
 	DeleteById(id uint)
 }
 
@@ -50,6 +51,14 @@ func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	Db.Where("Id=?", user.ID).Find(&savedUser)
 	log.Println("saved user is -->", savedUser)
 	return savedUser
+}
+
+func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User  {
+	Db:=Connect()
+	defer Db.Close()
+	savedUser := models.User{}
+	Db.Omit("created_at", "updated_at", "deleted_at").Preload("Balance").Where("Email=?", email).Find(&savedUser)
+	return &savedUser
 }
 
 

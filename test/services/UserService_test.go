@@ -73,5 +73,6 @@ func TestThatUserCanLoginWithEmailAndPassword(t *testing.T) {
 
 	loginResponse:=userService.Login(loginRequest)
 	assert.NotEmpty(t, loginResponse)
+	log.Println("logged in user-->", loginResponse)
 	assert.Equal(t, "user loggedin successfully", loginResponse.Message)
 }
