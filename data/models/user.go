@@ -10,6 +10,6 @@ type User struct{
 	Name string
 	Email string
 	Password string
-	Balance float64
+	Balance []Money
 	Transactions []Transaction
 }

@@ -31,7 +31,7 @@ func Connect() *gorm.DB{
 	if err!=nil{
 		log.Fatal(err)
 	}
-	Db.AutoMigrate(&models.User{}, &models.Transaction{})
+	Db.AutoMigrate(&models.User{}, &models.Transaction{},&models.Money{})
 	log.Println("connected " + "to db")
 	return Db
 }
@@ -42,6 +42,8 @@ type UserRepositoryImpl struct{
 
 func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	// userRepo.l.Println("in save")
+	Db:=Connect()
+	defer Db.Close()
 	savedUser := &models.User{}
 	log.Println("user to be saved is-->", user)
 	Db.Create(user)
@@ -52,17 +54,23 @@ func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 
 
 func (userRepo *UserRepositoryImpl) FindById(id uint) *models.User{
+	Db:=Connect()
+	defer Db.Close()
 	savedUser := &models.User{}
-	Db.Where("Id=?", id).Find(&savedUser)
+	Db.Omit("created_at", "updated_at", "deleted_at").Preload("Balance").Where("Id=?", id).Find(&savedUser)
 	return savedUser
 }
 
 func (userRepo *UserRepositoryImpl) FindAllUsers() []*models.User{
+	Db:=Connect()
+	defer Db.Close()
 	var users []*models.User
 	Db.Find(&users)
 	return users
 }
 
 func (userRepo *UserRepositoryImpl) DeleteById(id uint){
+	Db:=Connect()
+	defer Db.Close()
 	Db.Where("Id=?", id).Delete(&models.User{})
 }

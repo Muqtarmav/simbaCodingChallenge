@@ -5,17 +5,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-const (
-	DOLLAR = "USD"
-	POUNDS = "GBP"
-	NAIRA = "NGN"
-) 
+
 
 type Transaction struct{
 	gorm.Model
 	Amount float64
-	Currency string
-	UserID uint
+	Currency Currency
+	UserID uint `gorm:"many"`
 	Sender User
 	Receiver User
 }

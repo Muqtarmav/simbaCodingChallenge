@@ -18,6 +18,7 @@ var (
 
 type UserService interface{
 	Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse
+	Login(loginRequest dtos.LoginRequest) dtos.LoginResponse
 }
 
 type UserServiceImpl struct{
@@ -40,12 +41,30 @@ func (userserviceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 			log.Println("couldn't hash password")
 			return dtos.AddUserResponse{}
 		}
-		var user = &models.User{Name: addUserDto.Name, Email: addUserDto.Email, Password: password}
+		var user = &models.User{
+			Name: addUserDto.Name, 
+			Email: addUserDto.Email, 
+			Password: password,
+			Balance: []models.Money{
+				{Amount: 0, Currency:models.NAIRA }, 
+				{Amount: 0, Currency: models.POUNDS}, 
+				{Amount: 1000, Currency: models.DOLLAR},
+			},
+		}
 		savedUser:=userRepo.Save(user)
 		addUserResponse.Name = savedUser.Name
+		addUserResponse.ID=savedUser.ID
 		return addUserResponse
 	}
 }
+
+
+
+func(userserviceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dtos.LoginResponse{
+	return dtos.LoginResponse{}
+}
+
+
 
 func hashPassword(password string) (hash string, err error){
 	byteSlice, err:=bcrypt.GenerateFromPassword([]byte(password), 15)

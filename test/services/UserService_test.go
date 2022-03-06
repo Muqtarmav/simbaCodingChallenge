@@ -4,13 +4,18 @@ import (
 	"log"
 	"testing"
 
+	"github.com/djfemz/simbaCodingChallenge/data/models"
+	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/djfemz/simbaCodingChallenge/services"
 	"github.com/stretchr/testify/assert"
 )
 
 
-var userService services.UserService = &services.UserServiceImpl{}
+var (
+	userService services.UserService = &services.UserServiceImpl{}
+	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{}
+)
 
 func TestThatUserCanBeRegistered(t *testing.T)  {
 	var addUserRequest = dtos.AddUserRequest{
@@ -33,4 +38,40 @@ func TestThatUserIsntRegisteredWhenPasswordLessThan_8_Characters(t *testing.T){
 	}
 	addUserResponse:= userService.Register(addUserRequest)
 	assert.Empty(t, addUserResponse)
+}
+
+func TestThatEveryRegisteredUserGets_1000_USD_Upon_Registration(t *testing.T){
+	var addUserRequest = dtos.AddUserRequest{
+		Name:"John Doe",
+		Email:"john@gmail.com",
+		Password:"12345678",
+	}
+
+	//register user
+	addUserResponse := userService.Register(addUserRequest)
+	//assert that user is registered
+	assert.NotEmpty(t, addUserResponse)
+	assert.Greater(t, addUserResponse.ID, uint(0))
+	//find user
+	log.Println("user response-->", addUserResponse)
+	savedUser:=userRepo.FindById(addUserResponse.ID)
+	log.Println("found from db-->", savedUser)
+	assert.NotEmpty(t, savedUser.Balance)
+	for _, balance := range savedUser.Balance {
+		if balance.Currency==models.DOLLAR{
+			assert.Equal(t, 1000.00, balance.Amount)
+		}
+	}
+	
+}
+
+func TestThatUserCanLoginWithEmailAndPassword(t *testing.T) {
+	var loginRequest = dtos.LoginRequest{
+		Email: "john@gmail.com",
+		Password: "12345678",
+	}
+
+	loginResponse:=userService.Login(loginRequest)
+	assert.NotEmpty(t, loginResponse)
+	assert.Equal(t, "user loggedin successfully", loginResponse.Message)
 }
