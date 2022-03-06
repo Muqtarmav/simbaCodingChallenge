@@ -6,12 +6,20 @@ import (
 )
 
 
+type TransactionStatus string
+
+const(
+	Success TransactionStatus = "success"
+	Failed TransactionStatus = "failed"
+)
+
 
 type Transaction struct{
 	gorm.Model
 	Amount float64
 	Currency Currency
 	UserID uint `gorm:"many"`
-	Sender User
-	Receiver User
+	SendersID uint
+	ReceiversID uint 
+	Status TransactionStatus
 }

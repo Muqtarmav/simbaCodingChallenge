@@ -56,6 +56,7 @@ func TestThatEveryRegisteredUserGets_1000_USD_Upon_Registration(t *testing.T){
 	log.Println("user response-->", addUserResponse)
 	savedUser:=userRepo.FindById(addUserResponse.ID)
 	log.Println("found from db-->", savedUser)
+	//assert that balance is not empty 
 	assert.NotEmpty(t, savedUser.Balance)
 	for _, balance := range savedUser.Balance {
 		if balance.Currency==models.DOLLAR{
@@ -75,4 +76,16 @@ func TestThatUserCanLoginWithEmailAndPassword(t *testing.T) {
 	assert.NotEmpty(t, loginResponse)
 	log.Println("logged in user-->", loginResponse)
 	assert.Equal(t, "user loggedin successfully", loginResponse.Message)
+}
+
+func TestThatUserCannotLoginWithWrongCredentials(t *testing.T) {
+	var loginRequest = dtos.LoginRequest{
+		Email: "john@gmail.com",
+		Password: "1234567",
+	}
+
+	loginResponse:=userService.Login(loginRequest)
+	assert.NotEmpty(t, loginResponse)
+	log.Println("logged in user-->", loginResponse)
+	assert.Equal(t, "bad login credentials", loginResponse.Message)
 }

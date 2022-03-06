@@ -21,14 +21,10 @@ func transactionSetUp() []*models.Transaction{
 	return []*models.Transaction{ {
 		Amount: 200.00,
 		Currency: models.DOLLAR,
-		Sender: models.User{Name: "Femi", Email: "femi@gmail.com"},
-		Receiver: models.User{Name: "Adeola", Email: "adeola@gmail.com"},
 	},
 	{
 		Amount: 100.00,
 		Currency: models.DOLLAR,
-		Sender: models.User{Name: "Jack", Email: "jack@gmail.com"},
-		Receiver: models.User{Name: "Jill", Email: "jill@gmail.com"},
 	},	
 	}
 }
