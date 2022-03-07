@@ -17,7 +17,7 @@ func TestThatAUserCanTransferVirtual_CashToOtherUsers(t *testing.T) {
 	var transferRequest = dtos.TransactionRequest{
 		Amount: 200,
 		Currency: models.DOLLAR,
-		UserID: 66,
+		UserID: 63,
 		RecipientsID: uint(62),
 		TransactionType: models.TRANSFER,
 	}

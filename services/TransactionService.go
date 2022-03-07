@@ -76,28 +76,25 @@ func (transactionService TransactionServiceImpl)  Deposit(transferRequest dtos.T
 
 
 func isDeposit(recipient, sender *models.User, transferRequest dtos.TransactionRequest)  bool{
-	
-	
-
 	for index, balance := range sender.Balance  {
 		if balance.Currency==transferRequest.Currency&&
-				balance.Amount>transferRequest.Amount{
-				var sendersBalanceBeforeDeposit float64 = sender.Balance[index].Amount
-				var recipientsBalanceBeforeDeposit float64 = recipient.Balance[index].Amount
-				log.Println("senders balance before-->", sender.Balance)
-				log.Println("recipients balance before -->", recipient.Balance)
-				sender.Balance[index].Amount = sender.Balance[index].Amount-transferRequest.Amount
-				recipient.Balance[index].Amount+=transferRequest.Amount
-				log.Println("senders balance-->", sender.Balance)
-				log.Println("recipients balance", recipient.Balance)
-				userRepo.UpdateUserDetails(sender)
-				userRepo.UpdateUserDetails(recipient)
-				if sendersBalanceBeforeDeposit==sender.Balance[index].Amount || 
-							recipientsBalanceBeforeDeposit==recipient.Balance[index].Amount {
-					return false
-				}
+			balance.Amount>=transferRequest.Amount{
+			var sendersBalanceBeforeDeposit float64 = sender.Balance[index].Amount
+			var recipientsBalanceBeforeDeposit float64 = recipient.Balance[index].Amount
+			log.Println("senders balance before-->", sender.Balance)
+			log.Println("recipients balance before -->", recipient.Balance)
+			sender.Balance[index].Amount -=transferRequest.Amount
+			recipient.Balance[index].Amount+=transferRequest.Amount
+			log.Println("senders balance after-->", sender.Balance)
+			log.Println("recipients balance after", recipient.Balance)
+			userRepo.UpdateUserDetails(sender)
+			userRepo.UpdateUserDetails(recipient)
+			if sendersBalanceBeforeDeposit==sender.Balance[index].Amount || 
+						recipientsBalanceBeforeDeposit==recipient.Balance[index].Amount {
+				return false
+			}
 				return true
-		}
+			}
 	}
 	return false
 }
