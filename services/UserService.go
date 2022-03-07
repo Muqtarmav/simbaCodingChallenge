@@ -73,7 +73,10 @@ func(userserviceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dto
 	}
 }
 
-
+func isValidUser(userID uint) bool{
+	user:= userRepo.FindById(userID)
+	return user!=nil
+}
 
 func hashPassword(password string) (hash string, err error){
 	byteSlice, err:=bcrypt.GenerateFromPassword([]byte(password), 15)

@@ -7,10 +7,13 @@ import (
 
 
 type TransactionStatus string
+type TransactionType string
 
 const(
-	Success TransactionStatus = "success"
-	Failed TransactionStatus = "failed"
+	SUCCESS TransactionStatus = "success"
+	FAILED TransactionStatus = "failed"
+	TRANSFER TransactionType = "transfer"
+	CONVERT TransactionType = "convert"
 )
 
 
@@ -19,7 +22,7 @@ type Transaction struct{
 	Amount float64
 	Currency Currency
 	UserID uint `gorm:"many"`
-	SendersID uint
 	ReceiversID uint 
+	TransactionType TransactionType
 	Status TransactionStatus
 }
