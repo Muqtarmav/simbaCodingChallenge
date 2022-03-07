@@ -16,6 +16,8 @@ type TransactionRepositoryImpl struct{
 }
 
 func (transactionRepo *TransactionRepositoryImpl) Save(transaction *models.Transaction) (*models.Transaction) {
+	Db:=Connect()
+	defer Db.Close()
 	savedTransaction := &models.Transaction{}
 	Db.Create(transaction)
 	Db.Where("ID=?", transaction.ID).Find(savedTransaction)
@@ -24,18 +26,24 @@ func (transactionRepo *TransactionRepositoryImpl) Save(transaction *models.Trans
 
 
 func (transactionRepo *TransactionRepositoryImpl) FindById(id uint) *models.Transaction{
+	Db:=Connect()
+	defer Db.Close()
 	foundTransaction:= &models.Transaction{}
 	Db.Where("ID=?", id).Find(foundTransaction)
 	return foundTransaction
 }
 
 func (transactionRepo *TransactionRepositoryImpl) FindAllTransactions() []*models.Transaction{
+	Db:=Connect()
+	defer Db.Close()
 	var transactions []*models.Transaction
 	Db.Find(&transactions)
 	return transactions
 }
 
 func (transactionRepo *TransactionRepositoryImpl) DeleteById(id uint){
+	Db:=Connect()
+	defer Db.Close()
 	Db.Where("ID=?", id).Delete(&models.Transaction{})
 }
 

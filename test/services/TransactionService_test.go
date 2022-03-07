@@ -1,6 +1,7 @@
 package services_test
 
 import (
+	"log"
 	"testing"
 
 	"github.com/djfemz/simbaCodingChallenge/data/models"
@@ -13,30 +14,18 @@ import (
 var transactionService services.TransactionService = services.TransactionServiceImpl{}
 
 func TestThatAUserCanTransferVirtual_CashToOtherUsers(t *testing.T) {
-	var addUserDto = dtos.AddUserRequest{
-		Name: "Jane Doe",
-		Email: "jane@gmail.com",
-		Password: "12345678",
-	}
-
-	addUserResponse:= userService.Register(addUserDto)
-	assert.NotEmpty(t,addUserResponse)
-	assert.Greater(t, addUserResponse.ID, 0)
-
-
 	var transferRequest = dtos.TransactionRequest{
 		Amount: 200,
 		Currency: models.DOLLAR,
-		UserID: addUserResponse.ID,
-		ReceiversID: uint(62),
+		UserID: 66,
+		RecipientsID: uint(62),
 		TransactionType: models.TRANSFER,
 	}
 
 	transferResponse:= transactionService.Deposit(transferRequest)
 	assert.NotEmpty(t, transferResponse)
+	log.Println("transfer respone -->", transferResponse)
 	assert.Equal(t, models.SUCCESS, transferResponse.Status)
-
-	
 }
 
 

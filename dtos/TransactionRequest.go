@@ -6,6 +6,6 @@ type TransactionRequest struct{
 	Amount float64
 	Currency models.Currency
 	UserID uint 
-	ReceiversID uint 
+	RecipientsID uint 
 	TransactionType models.TransactionType
 }

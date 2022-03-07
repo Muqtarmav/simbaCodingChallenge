@@ -73,9 +73,9 @@ func(userserviceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dto
 	}
 }
 
-func isValidUser(userID uint) bool{
+func validateUser(userID uint) (*models.User, error){
 	user:= userRepo.FindById(userID)
-	return user!=nil
+	return user, nil
 }
 
 func hashPassword(password string) (hash string, err error){

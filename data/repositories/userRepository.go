@@ -53,12 +53,27 @@ func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	return savedUser
 }
 
-func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User  {
+
+func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.User)  {
 	Db:=Connect()
 	defer Db.Close()
-	savedUser := models.User{}
+	var user models.User
+	log.Println("user to be updated", userToBeUpdated)
+	Db.Preload("Balance").First(&user, userToBeUpdated.ID)
+	log.Println("user to be updated-->", userToBeUpdated)
+	user.Balance = userToBeUpdated.Balance
+	Db.Save(user)
+}
+
+func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
+	Db:=Connect()
+	defer Db.Close()
+	savedUser := &models.User{}
 	Db.Omit("created_at", "updated_at", "deleted_at").Preload("Balance").Where("Email=?", email).Find(&savedUser)
-	return &savedUser
+	if savedUser==nil{
+		return nil
+	}
+	return savedUser
 }
 
 
