@@ -6,13 +6,13 @@ type Currency string
 
 const (
 	DOLLAR Currency = "USD"
-	POUNDS Currency= "GBP"
-	NAIRA Currency = "NGN"
-) 
+	EURO   Currency = "EUR"
+	NAIRA  Currency = "NGN"
+)
 
-type Money struct{
+type Money struct {
 	gorm.Model
-	Amount float64
+	Amount   float64
 	Currency Currency
-	UserID uint
+	UserID   uint
 }

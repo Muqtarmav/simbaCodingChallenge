@@ -10,85 +10,102 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 var (
-	Db *gorm.DB
+	Db       *gorm.DB
 	userRepo = repositories.UserRepositoryImpl{}
 )
 
-type UserService interface{
+type UserService interface {
 	Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse
 	Login(loginRequest dtos.LoginRequest) dtos.LoginResponse
+	GetAccountBalance(userID uint) (float64, error)
 }
 
-type UserServiceImpl struct{
-
+type UserServiceImpl struct {
 }
 
-func setUp(){
-	Db=repositories.Connect()
+func setUp() {
+	Db = repositories.Connect()
 }
 
-func (userserviceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse{
+func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse {
 	setUp()
-	defer Db.Close()
+	defer func(Db *gorm.DB) {
+		err := Db.Close()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}(Db)
 	var addUserResponse = dtos.AddUserResponse{}
-	if len(addUserDto.Name)<1 || len(addUserDto.Email)<1 || len(addUserDto.Password)<8{
+	if len(addUserDto.Name) < 1 || len(addUserDto.Email) < 1 || len(addUserDto.Password) < 8 {
 		return dtos.AddUserResponse{}
-	}else{
-		password, err:=hashPassword(addUserDto.Password)
-		if err!=nil{
+	} else {
+		password, err := hashPassword(addUserDto.Password)
+		if err != nil {
 			log.Println("couldn't hash password")
 			return dtos.AddUserResponse{}
 		}
 		var user = &models.User{
-			Name: addUserDto.Name, 
-			Email: addUserDto.Email, 
+			Name:     addUserDto.Name,
+			Email:    addUserDto.Email,
 			Password: password,
 			Balance: []models.Money{
-				{Amount: 0, Currency:models.NAIRA }, 
-				{Amount: 0, Currency: models.POUNDS}, 
+				{Amount: 0, Currency: models.NAIRA},
+				{Amount: 0, Currency: models.EURO},
 				{Amount: 1000, Currency: models.DOLLAR},
 			},
 		}
-		savedUser:=userRepo.Save(user)
+		savedUser := userRepo.Save(user)
 		addUserResponse.Name = savedUser.Name
-		addUserResponse.ID=savedUser.ID
+		addUserResponse.ID = savedUser.ID
 		return addUserResponse
 	}
 }
 
+func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
+	//var accountBalance []models.Money
+	//find user
+	savedUser := userRepo.FindById(userID)
+	log.Println("user-->", savedUser)
+	//get list of users transactions
+	transactions := savedUser.Transactions
+	log.Println(transactions)
+	//add all users transactions together to get the users balance
+	//for index, transaction := range transactions {
+	//
+	//}
+	return 0, nil
+}
 
-
-func(userserviceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dtos.LoginResponse{
-	foundUser:=userRepo.FindByEmail(loginRequest.Email)
-	if foundUser==nil{
+func (userServiceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dtos.LoginResponse {
+	foundUser := userRepo.FindByEmail(loginRequest.Email)
+	if foundUser == nil {
 		return dtos.LoginResponse{Message: "user not found"}
 	}
 
-	if decryptPassword([]byte(foundUser.Password), []byte(loginRequest.Password)){
-		return dtos.LoginResponse{ID:foundUser.ID,Message: "user loggedin successfully"}
-	}else{
+	if decryptPassword([]byte(foundUser.Password), []byte(loginRequest.Password)) {
+		return dtos.LoginResponse{ID: foundUser.ID, Message: "user loggedin successfully"}
+	} else {
 		return dtos.LoginResponse{Message: "bad login credentials"}
 	}
 }
 
-func validateUser(userID uint) (*models.User, error){
-	user:= userRepo.FindById(userID)
+func validateUser(userID uint) (*models.User, error) {
+	user := userRepo.FindById(userID)
 	return user, nil
 }
 
-func hashPassword(password string) (hash string, err error){
-	byteSlice, err:=bcrypt.GenerateFromPassword([]byte(password), 15)
-	if err!=nil{
+func hashPassword(password string) (hash string, err error) {
+	byteSlice, err := bcrypt.GenerateFromPassword([]byte(password), 15)
+	if err != nil {
 		log.Println("Error hashing password")
 		return err.Error(), err
 	}
-	hash=string(byteSlice)
+	hash = string(byteSlice)
 	return hash, nil
 }
 
-func decryptPassword(hashedPassword, password []byte) bool{
-	err:=bcrypt.CompareHashAndPassword(hashedPassword, password)
-	return err==nil
+func decryptPassword(hashedPassword, password []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hashedPassword, password)
+	return err == nil
 }
