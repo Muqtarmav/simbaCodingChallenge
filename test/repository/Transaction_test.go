@@ -9,23 +9,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
-
 var (
-	Db = repositories.Connect()
+	Db                                                 = repositories.Connect()
 	transactionRepo repositories.TransactionRepository = &repositories.TransactionRepositoryImpl{}
 )
 
-
-func transactionSetUp() []*models.Transaction{
-	return []*models.Transaction{ {
-		Amount: 200.00,
-		Currency: models.DOLLAR,
+func transactionSetUp() []*models.Transaction {
+	return []*models.Transaction{{
+		Amount:         200.00,
+		SourceCurrency: models.DOLLAR,
 	},
-	{
-		Amount: 100.00,
-		Currency: models.DOLLAR,
-	},	
+		{
+			Amount:         100.00,
+			SourceCurrency: models.DOLLAR,
+		},
 	}
 }
 
@@ -34,25 +31,24 @@ func TestThatTransactionCanBeSaved(t *testing.T) {
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
-	savedTransaction:=transactionRepo.Save(transactions[0])
-	assert.NotEmpty(t,savedTransaction)
+	savedTransaction := transactionRepo.Save(transactions[0])
+	assert.NotEmpty(t, savedTransaction)
 	assert.Greater(t, savedTransaction.ID, uint(0))
 }
 
-
-func TestThatTransactionCanBeFoundById(t *testing.T){
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatTransactionCanBeFoundById(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
-	savedTransaction:=transactionRepo.Save(transactions[0])
+	savedTransaction := transactionRepo.Save(transactions[0])
 	returnedTransaction := transactionRepo.FindById(savedTransaction.ID)
 	assert.Equal(t, returnedTransaction.ID, savedTransaction.ID)
 	assert.Equal(t, returnedTransaction.Amount, 200.00)
 }
 
-func TestThatAllTransactionsCanBeRetrieved(t *testing.T){
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatAllTransactionsCanBeRetrieved(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
@@ -63,12 +59,11 @@ func TestThatAllTransactionsCanBeRetrieved(t *testing.T){
 	assert.Equal(t, 2, len(transactionRepo.FindAllTransactions()))
 }
 
-func TestThatTransactionCanBeDeletedById(t *testing.T)  {
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatTransactionCanBeDeletedById(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()
-	
 
 	for _, transaction := range transactions {
 		transactionRepo.Save(transaction)
@@ -77,8 +72,8 @@ func TestThatTransactionCanBeDeletedById(t *testing.T)  {
 	assert.Equal(t, 1, len(transactionRepo.FindAllTransactions()))
 }
 
-func TestThatATransactionCanBeDeleted(t *testing.T){
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatATransactionCanBeDeleted(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	transactions := transactionSetUp()

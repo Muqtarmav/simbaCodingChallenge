@@ -11,13 +11,13 @@ const (
 	SUCCESS  TransactionStatus = "success"
 	FAILED   TransactionStatus = "failed"
 	TRANSFER TransactionType   = "transfer"
-	CONVERT  TransactionType   = "convert"
 )
 
 type Transaction struct {
 	gorm.Model
 	Amount          float64
-	Currency        Currency
+	SourceCurrency  Currency
+	TargetCurrency  Currency
 	UserID          uint
 	ReceiversID     uint
 	TransactionType TransactionType

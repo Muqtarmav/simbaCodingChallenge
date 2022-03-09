@@ -60,6 +60,7 @@ func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.Us
 	Db.Preload("Balance").First(&user, userToBeUpdated.ID)
 	log.Println("user to be updated-->", userToBeUpdated)
 	user.Balance = userToBeUpdated.Balance
+	log.Println("user after updating balance, before save", user)
 	Db.Save(user)
 }
 

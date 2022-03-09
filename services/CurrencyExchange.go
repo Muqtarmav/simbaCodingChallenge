@@ -13,7 +13,7 @@ type Result struct {
 }
 
 func GetCurrencyExchangeRate(currency, targetCurrency string) float64 {
-	config, err := util.LoadConfig("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/app.env")
+	config, err := util.LoadConfig("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge")
 	if err != nil {
 		log.Fatal(err)
 	}
