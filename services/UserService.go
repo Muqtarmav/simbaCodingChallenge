@@ -1,18 +1,18 @@
 package services
 
 import (
-	"log"
-
 	"github.com/djfemz/simbaCodingChallenge/data/models"
 	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 var (
-	Db       *gorm.DB
-	userRepo = repositories.UserRepositoryImpl{}
+	Db                 *gorm.DB
+	userRepo           = repositories.UserRepositoryImpl{}
+	transactionService = TransactionServiceImpl{}
 )
 
 type UserService interface {
@@ -37,7 +37,8 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 		}
 	}(Db)
 	var addUserResponse = dtos.AddUserResponse{}
-	if len(addUserDto.Name) < 1 || len(addUserDto.Email) < 1 || len(addUserDto.Password) < 8 {
+	if len(addUserDto.Name) < 1 || len(addUserDto.Email) < 1 ||
+		len(addUserDto.Password) < 8 {
 		return dtos.AddUserResponse{}
 	} else {
 		password, err := hashPassword(addUserDto.Password)
@@ -50,12 +51,24 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 			Email:    addUserDto.Email,
 			Password: password,
 			Balance: []models.Money{
-				{Amount: 0, Currency: models.NAIRA},
 				{Amount: 0, Currency: models.EURO},
-				{Amount: 1000, Currency: models.DOLLAR},
+				{Amount: 0, Currency: models.NAIRA},
+				{Amount: 0, Currency: models.DOLLAR},
 			},
+			Transactions: []models.Transaction{},
 		}
 		savedUser := userRepo.Save(user)
+		var transferRequest = dtos.TransactionRequest{
+			Amount:          1000,
+			SourceCurrency:  models.DOLLAR,
+			TargetCurrency:  models.DOLLAR,
+			UserID:          123456789,
+			RecipientsID:    savedUser.ID,
+			TransactionType: models.TRANSFER,
+		}
+
+		transactionService.Deposit(transferRequest)
+
 		addUserResponse.Name = savedUser.Name
 		addUserResponse.ID = savedUser.ID
 		return addUserResponse
@@ -63,17 +76,11 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 }
 
 func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
-	//var accountBalance []models.Money
-	//find user
 	savedUser := userRepo.FindById(userID)
 	log.Println("user-->", savedUser)
-	//get list of users transactions
 	transactions := savedUser.Transactions
+
 	log.Println(transactions)
-	//add all users transactions together to get the users balance
-	//for index, transaction := range transactions {
-	//
-	//}
 	return 0, nil
 }
 

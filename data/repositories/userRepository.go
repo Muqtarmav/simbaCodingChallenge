@@ -45,18 +45,22 @@ func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
 	Db := Connect()
 	defer Db.Close()
 	savedUser := &models.User{}
-	log.Println("user to be saved is-->", user)
 	Db.Create(user)
-	Db.Where("Id=?", user.ID).Find(&savedUser)
+	Db.Where("ID=?", user.ID).Find(&savedUser)
 	log.Println("saved user is -->", savedUser)
 	return savedUser
 }
 
 func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.User) {
 	Db := Connect()
-	defer Db.Close()
+	defer func(Db *gorm.DB) {
+		err := Db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
 	var user models.User
-	log.Println("user to be updated", userToBeUpdated)
+	log.Println("user to be updated---->", userToBeUpdated)
 	Db.Preload("Balance").First(&user, userToBeUpdated.ID)
 	log.Println("user to be updated-->", userToBeUpdated)
 	user.Balance = userToBeUpdated.Balance
@@ -66,7 +70,12 @@ func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.Us
 
 func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
 	Db := Connect()
-	defer Db.Close()
+	defer func(Db *gorm.DB) {
+		err := Db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(Db)
 	savedUser := &models.User{}
 	Db.Omit("created_at", "updated_at", "deleted_at").Preload("Balance").Preload("Transactions").
 		Where("Email=?", email).Find(&savedUser)
@@ -80,7 +89,7 @@ func (userRepo *UserRepositoryImpl) FindById(id uint) *models.User {
 	Db := Connect()
 	defer Db.Close()
 	savedUser := &models.User{}
-	Db.Where("ID=?", id).Preload("Transactions").Preload("Balance").Find(&savedUser)
+	Db.Where("id=?", id).Preload("Balance").Find(&savedUser)
 	return savedUser
 }
 

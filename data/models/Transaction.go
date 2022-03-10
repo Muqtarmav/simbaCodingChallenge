@@ -11,6 +11,7 @@ const (
 	SUCCESS  TransactionStatus = "success"
 	FAILED   TransactionStatus = "failed"
 	TRANSFER TransactionType   = "transfer"
+	CONVERT  TransactionType   = "conversion"
 )
 
 type Transaction struct {
@@ -18,6 +19,7 @@ type Transaction struct {
 	Amount          float64
 	SourceCurrency  Currency
 	TargetCurrency  Currency
+	ExchangeRate    float64
 	UserID          uint
 	ReceiversID     uint
 	TransactionType TransactionType

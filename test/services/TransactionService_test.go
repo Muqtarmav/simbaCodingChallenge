@@ -29,7 +29,6 @@ func TestThatAUserCanTransferVirtual_CashToOtherUsers(t *testing.T) {
 }
 
 func TestThatTransferFailsWhenUserHasInsufficientFunds(t *testing.T) {
-	//get a users account balance
 	var transferRequest = dtos.TransactionRequest{
 		Amount:          40000,
 		SourceCurrency:  models.DOLLAR,
@@ -54,11 +53,11 @@ func TestThatTransferFailsWhenUserHasInsufficientFunds(t *testing.T) {
 
 }
 
-func TestThatUserCanSelectTargetCurrencyDuringTransfer(t *testing.T) {
+func TestThatUserCanSendToTargetCurrencyDuringTransfer(t *testing.T) {
 	var transferRequest = dtos.TransactionRequest{
 		Amount:          50,
 		SourceCurrency:  models.DOLLAR,
-		TargetCurrency:  models.EURO,
+		TargetCurrency:  models.NAIRA,
 		UserID:          uint(3),
 		RecipientsID:    uint(2),
 		TransactionType: models.TRANSFER,
@@ -66,4 +65,29 @@ func TestThatUserCanSelectTargetCurrencyDuringTransfer(t *testing.T) {
 	response := transactionService.Deposit(transferRequest)
 	log.Println(response)
 	assert.NotEmpty(t, response)
+}
+
+func TestThatUserCanConvertMoneyBetweenWallets(t *testing.T) {
+	transactionRequest := dtos.TransactionRequest{
+		UserID:          24,
+		SourceCurrency:  models.DOLLAR,
+		TargetCurrency:  models.NAIRA,
+		Amount:          100.00,
+		TransactionType: models.CONVERT,
+	}
+
+	foundUser := userRepo.FindById(transactionRequest.UserID)
+	for _, balance := range foundUser.Balance {
+		if balance.Currency == transactionRequest.TargetCurrency {
+			assert.Equal(t, 83266.44, balance.Amount)
+		}
+	}
+	transactionResponse := transactionService.ConvertMoney(transactionRequest)
+	assert.NotEmpty(t, transactionResponse)
+	foundUserAfterConversion := userRepo.FindById(transactionRequest.UserID)
+	for _, balance := range foundUserAfterConversion.Balance {
+		if balance.Currency == transactionRequest.TargetCurrency {
+			assert.Greater(t, balance.Amount, 0.00)
+		}
+	}
 }
