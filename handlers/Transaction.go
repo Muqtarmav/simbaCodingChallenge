@@ -17,22 +17,34 @@ var (
 )
 
 func (transaction *Transaction) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if req.URL.Path == "/transaction/transfer" && req.Method == http.MethodPost {
+	transactionType := req.FormValue("transaction")
+	if req.URL.Path == "/transaction" &&
+		transactionType == "transfer" && req.Method == http.MethodPost {
 		transfer(rw, req)
-	} else if req.URL.Path == "/transaction/transaction" && req.Method == http.MethodPut {
+	} else if req.URL.Path == "/transaction" &&
+		transactionType == "convert" && req.Method == http.MethodPost {
 		convert(rw, req)
 	}
+}
+
+func NewTransaction() *Transaction {
+	return &Transaction{}
 }
 
 func transfer(rw http.ResponseWriter, req *http.Request) {
 	transactionRequest := getRequestParameters(req)
 	transactionRequest.TransactionType = models.TRANSFER
 	response := transactionService.Deposit(transactionRequest)
-	tmpl := template.Must(template.ParseFiles("overview.html"))
-	err := tmpl.Execute(rw, response)
-	if err != nil {
-		log.Fatal(err)
+	if response.Status == models.SUCCESS {
+		tmpl := template.Must(template.ParseFiles("overview.html"))
+		err := tmpl.Execute(rw, response)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		http.Redirect(rw, req, "/", 303)
 	}
+
 }
 
 func convert(rw http.ResponseWriter, req *http.Request) {
@@ -55,11 +67,11 @@ func getRequestParameters(req *http.Request) dtos.TransactionRequest {
 	currency := checkCurrency(sourceCurrency)
 	targetCurrency := req.FormValue("target")
 	currencyTarget := checkCurrency(targetCurrency)
-	userID, err := strconv.Atoi(req.FormValue("userID"))
+	userID, err := strconv.Atoi(req.FormValue("user-id"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	recipientID, err := strconv.Atoi(req.FormValue("recipientID"))
+	recipientID, err := strconv.Atoi(req.FormValue("recipient"))
 	if err != nil {
 		log.Fatal(err)
 	}

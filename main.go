@@ -10,12 +10,13 @@ import (
 
 func main() {
 	user := handlers.GetUser()
+	transaction := handlers.NewTransaction()
 	router := mux.NewRouter()
 	router.PathPrefix("/static/").
 		Handler(http.StripPrefix("/static/",
 			http.FileServer(http.Dir("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/views/static"))))
 	router.HandleFunc("/", index)
-	router.Handle("/transaction", &handlers.Transaction{})
+	router.Handle("/transaction", transaction)
 	router.Handle("/user/register", user)
 	router.Handle("/user/login", user)
 

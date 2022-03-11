@@ -12,13 +12,13 @@ type Result struct {
 	ConversionRates map[string]float64 `json:"conversion_rates"`
 }
 
-func GetCurrencyExchangeRate(currency, targetCurrency string) float64 {
+func GetCurrencyExchangeRate(sourceCurrency, targetCurrency string) float64 {
 	config, err := util.LoadConfig("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge")
 	if err != nil {
 		log.Fatal(err)
 	}
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", string("https://v6.exchangerate-api.com/v6/latest/"+currency), nil)
+	request, err := http.NewRequest("GET", string("https://v6.exchangerate-api.com/v6/latest/"+sourceCurrency), nil)
 	if err != nil {
 		log.Fatal(err)
 	}

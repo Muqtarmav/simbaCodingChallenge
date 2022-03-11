@@ -79,7 +79,7 @@ func TestThatUserCanConvertMoneyBetweenWallets(t *testing.T) {
 	foundUser := userRepo.FindById(transactionRequest.UserID)
 	for _, balance := range foundUser.Balance {
 		if balance.Currency == transactionRequest.TargetCurrency {
-			assert.Equal(t, 83266.44, balance.Amount)
+			assert.Equal(t, 166532.88, balance.Amount)
 		}
 	}
 	transactionResponse := transactionService.ConvertMoney(transactionRequest)
