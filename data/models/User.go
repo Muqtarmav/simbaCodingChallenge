@@ -1,15 +1,14 @@
 package models
 
 import (
-
 	"github.com/jinzhu/gorm"
 )
 
-type User struct{
+type User struct {
 	gorm.Model
-	Name string
-	Email string
-	Password string
-	Balance []Money
+	Name         string
+	Email        string
+	Password     string
+	Balance      []Money
 	Transactions []Transaction
 }

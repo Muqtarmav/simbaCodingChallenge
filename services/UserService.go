@@ -91,7 +91,7 @@ func (userServiceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dt
 	}
 
 	if decryptPassword([]byte(foundUser.Password), []byte(loginRequest.Password)) {
-		return dtos.LoginResponse{ID: foundUser.ID, Message: "user loggedin successfully"}
+		return dtos.LoginResponse{ID: foundUser.ID, Message: "user loggedin successfully", Transactions: foundUser.Transactions}
 	} else {
 		return dtos.LoginResponse{Message: "bad login credentials"}
 	}

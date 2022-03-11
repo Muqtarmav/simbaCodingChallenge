@@ -10,30 +10,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 var (
-	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{} 
+	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{}
 )
 
-
-
-func setUp() []*models.User{
+func setUp() []*models.User {
 	return []*models.User{
 		{
-			Name: "Janey Doe",
-			Email: "janeydoe@email.com",
+			Name:     "Janey Doe",
+			Email:    "janeydoe@email.com",
 			Password: "1234",
 		},
 		{
-			Name: "John Doe",
-			Email: "john@gmail.com",
+			Name:     "John Doe",
+			Email:    "john@gmail.com",
 			Password: "1234",
 		},
 	}
 }
 
-func TestThatUserCanBeSaved(t *testing.T){ 
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatUserCanBeSaved(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
@@ -42,44 +39,44 @@ func TestThatUserCanBeSaved(t *testing.T){
 	assert.Equal(t, users[0].Email, returnedUser.Email)
 }
 
-func TestThatUserCanBeFoundById(t *testing.T){
-	cleaner:=util.DeleteCreatedModels(Db)
+func TestThatUserCanBeFoundById(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
-	savedUser:=userRepo.Save(users[0])
+	savedUser := userRepo.Save(users[0])
 	returnedUser := userRepo.FindById(savedUser.ID)
 	assert.Equal(t, returnedUser.ID, savedUser.ID)
 	assert.Equal(t, returnedUser.Name, "Janey Doe")
 }
 
 func TestThatUserCanBeFoundByEmail(t *testing.T) {
-	cleaner:=util.DeleteCreatedModels(Db)
-	defer Db.Close()
-	defer cleaner()
-	users:= setUp()
-	for _, user := range users {
-		userRepo.Save(user)
-	}
-	foundUser := userRepo.FindByEmail(users[0].Email)
-	assert.NotEmpty(t,foundUser)
-	log.Println("found user-->", foundUser)
-}
-
-func TestThatAllUsersCanBeFound(t *testing.T){
-	cleaner:=util.DeleteCreatedModels(Db)
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
 	for _, user := range users {
 		userRepo.Save(user)
 	}
-	allUsers:=userRepo.FindAllUsers()
+	foundUser := userRepo.FindByEmail(users[0].Email)
+	assert.NotEmpty(t, foundUser)
+	log.Println("found user---->", foundUser)
+}
+
+func TestThatAllUsersCanBeFound(t *testing.T) {
+	cleaner := util.DeleteCreatedModels(Db)
+	defer Db.Close()
+	defer cleaner()
+	users := setUp()
+	for _, user := range users {
+		userRepo.Save(user)
+	}
+	allUsers := userRepo.FindAllUsers()
 	assert.Equal(t, 2, len(allUsers))
 }
 
 func TestDeleteById(t *testing.T) {
-	cleaner:=util.DeleteCreatedModels(Db)
+	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
 	users := setUp()
