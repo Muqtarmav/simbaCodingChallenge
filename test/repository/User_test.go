@@ -1,6 +1,7 @@
 package test
 
 import (
+	"github.com/jinzhu/gorm"
 	"log"
 	"testing"
 
@@ -41,12 +42,18 @@ func TestThatUserCanBeSaved(t *testing.T) {
 
 func TestThatUserCanBeFoundById(t *testing.T) {
 	cleaner := util.DeleteCreatedModels(Db)
-	defer Db.Close()
+	defer func(Db *gorm.DB) {
+		err := Db.Close()
+		if err != nil {
+
+		}
+	}(Db)
 	defer cleaner()
-	users := setUp()
-	savedUser := userRepo.Save(users[0])
-	returnedUser := userRepo.FindById(savedUser.ID)
-	assert.Equal(t, returnedUser.ID, savedUser.ID)
+	//users := setUp()
+	//savedUser := userRepo.Save(users[0])
+	returnedUser := userRepo.FindById(3)
+	log.Println(returnedUser)
+	assert.Equal(t, returnedUser.ID, uint(3))
 	assert.Equal(t, returnedUser.Name, "Janey Doe")
 }
 
@@ -54,11 +61,11 @@ func TestThatUserCanBeFoundByEmail(t *testing.T) {
 	cleaner := util.DeleteCreatedModels(Db)
 	defer Db.Close()
 	defer cleaner()
-	users := setUp()
-	for _, user := range users {
-		userRepo.Save(user)
-	}
-	foundUser := userRepo.FindByEmail(users[0].Email)
+	//users := setUp()
+	//for _, user := range users {
+	//	userRepo.Save(user)
+	//}
+	foundUser := userRepo.FindByEmail("janeydoe@email.com")
 	assert.NotEmpty(t, foundUser)
 	log.Println("found user---->", foundUser)
 }

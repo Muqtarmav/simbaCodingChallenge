@@ -77,8 +77,8 @@ func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
 		}
 	}(Db)
 	savedUser := &models.User{}
-	Db.Omit("created_at", "updated_at", "deleted_at").Preload("Balance").Preload("Transactions").
-		Where("Email=?", email).Find(&savedUser)
+	Db.Where("email=?", email).Preload("Balance").Preload("Transactions").Find(&savedUser)
+
 	if savedUser == nil {
 		return nil
 	}
@@ -89,7 +89,8 @@ func (userRepo *UserRepositoryImpl) FindById(id uint) *models.User {
 	Db := Connect()
 	defer Db.Close()
 	savedUser := &models.User{}
-	Db.Where("id=?", id).Preload("Balance").Find(&savedUser)
+	Db.Omit("CreatedAt", "UpdatedAt", "DeletedAt").Where("id=?", id).Omit("CreatedAt", "UpdatedAt", "DeletedAt").Preload("Balance").
+		Preload("Transactions").Find(&savedUser).Omit("CreatedAt", "UpdatedAt", "DeletedAt")
 	return savedUser
 }
 

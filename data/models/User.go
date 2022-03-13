@@ -12,3 +12,6 @@ type User struct {
 	Balance      []Money
 	Transactions []Transaction
 }
+
+type Session struct {
+}

@@ -67,10 +67,11 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 			TransactionType: models.TRANSFER,
 		}
 
-		transactionService.Deposit(transferRequest)
+		response := transactionService.Deposit(transferRequest)
 
 		addUserResponse.Name = savedUser.Name
 		addUserResponse.ID = savedUser.ID
+		addUserResponse.Balance = response.Balance
 		return addUserResponse
 	}
 }
@@ -90,8 +91,18 @@ func (userServiceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dt
 		return dtos.LoginResponse{Message: "user not found"}
 	}
 
+	log.Println("found user---->", foundUser.Balance)
+	transactions := transactionRepo.FindTransactionsByUserID(foundUser.ID)
+	log.Println("users transactions---->", transactions)
 	if decryptPassword([]byte(foundUser.Password), []byte(loginRequest.Password)) {
-		return dtos.LoginResponse{ID: foundUser.ID, Message: "user loggedin successfully", Transactions: foundUser.Transactions}
+		loginResponse := dtos.LoginResponse{
+			ID:           foundUser.ID,
+			Message:      "user loggedin successfully",
+			Balance:      foundUser.Balance,
+			Transactions: transactions,
+		}
+		log.Println("login response---->", loginResponse)
+		return loginResponse
 	} else {
 		return dtos.LoginResponse{Message: "bad login credentials"}
 	}

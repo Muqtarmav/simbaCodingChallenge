@@ -11,24 +11,44 @@
       <h3>New Transaction</h3>
       <form role="form" action="/transaction" method="POST">
           <div class="user">
-              <label  for="user-id">UserID: </label><input type="text" name="user-id" readonly value="234" id="user-id"> <br/>
+              <label  for="user-id">UserID: </label><input type="text" name="user-id" readonly value={{.}} id="user-id"> <br/>
           </div>
           <div class="user">
               <label id="recipient-tag" for="recipient">RecipientID: </label><input type="text" name="recipient" id="recipient"> <br/>
           </div>
+
           <div class="user">
-              <label id="source-tag" for="source">Source Currency:  </label><input type="text" name="name" id="source"> <br/>
+              <label id="source-currency" >
+                  Source Currency:
+                  <select class="transaction" name="source-currency">
+                      <optgroup label="currency">
+                          <option value="USD">DOLLAR</option>
+                          <option value="EUR">EURO</option>
+                          <option value="NGN">NAIRA</option>
+                      </optgroup>
+                  </select>
+              </label> <br/>
+          </div>
+
+          <div class="user">
+              <label id="currency" >
+                  Target Currency:
+                  <select class="transaction" name="target-currency">
+                      <optgroup label="currency">
+                          <option value="USD">DOLLAR</option>
+                          <option value="EUR">EURO</option>
+                          <option value="NGN">NAIRA</option>
+                      </optgroup>
+                  </select>
+              </label> <br/>
           </div>
           <div class="user">
-              <label id="target-tag" for="target">Target Currency: </label><input type="email" name="email" id="target"> <br/>
-          </div>
-          <div class="user">
-              <label id="transaction-tag" for="transaction">
+              <label class="transaction-tag" >
                   Transaction Type:
-                  <select id="transaction">
+                  <select class="transaction" name="transaction-type">
                       <optgroup label="transaction-type">
-                          <option>Transfer</option>
-                          <option>Convert</option>
+                          <option value="transfer">Transfer</option>
+                          <option value="convert">Convert</option>
                       </optgroup>
                   </select>
               </label> <br/>
@@ -36,5 +56,6 @@
           <button type="submit" id="signup-button">Transfer</button>
       </form>
   </div>
+
 </body>
 </html>

@@ -88,7 +88,7 @@ h3{
     height: 30px;
 }
 
-#transaction{
+.transaction{
     margin-left: 10px;
     border-radius: 10px;
     width: 320px;

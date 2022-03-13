@@ -17,6 +17,7 @@ var (
 type TransactionService interface {
 	Deposit(transferRequest dtos.TransactionRequest) dtos.TransactionResponse
 	ConvertMoney(request dtos.TransactionRequest) dtos.TransactionResponse
+	GetUsersTransactions(userID uint) []*models.Transaction
 }
 
 //TODOS
@@ -69,7 +70,14 @@ func (transactionService TransactionServiceImpl) ConvertMoney(request dtos.Trans
 			transaction.Status = models.SUCCESS
 			transactionRepo.Save(transaction)
 			userRepo.UpdateUserDetails(foundUser)
-			return dtos.TransactionResponse{UserID: foundUser.ID, TransactionType: models.CONVERT, Status: models.SUCCESS}
+			userAfterCurrencyConversion := userRepo.FindById(foundUser.ID)
+			return dtos.TransactionResponse{
+				UserID:          foundUser.ID,
+				TransactionType: models.CONVERT,
+				Balance:         userAfterCurrencyConversion.Balance,
+				Transactions:    userAfterCurrencyConversion.Transactions,
+				Status:          models.SUCCESS,
+			}
 		}
 	}
 	transaction.Status = models.FAILED
@@ -124,10 +132,13 @@ func (transactionService TransactionServiceImpl) Deposit(transferRequest dtos.Tr
 			transaction.Status = models.SUCCESS
 			transaction.ExchangeRate = rate
 			transactionRepo.Save(&transaction)
+			senderAfterSuccessfulTransfer := userRepo.FindById(sender.ID)
 			return dtos.TransactionResponse{
 				UserID:          sender.ID,
 				ReceiversID:     recipient.ID,
 				Amount:          transferRequest.Amount,
+				Balance:         senderAfterSuccessfulTransfer.Balance,
+				Transactions:    senderAfterSuccessfulTransfer.Transactions,
 				TransactionType: transferRequest.TransactionType,
 				Status:          models.SUCCESS,
 			}
@@ -174,4 +185,15 @@ func adminTransfer(recipient *models.User, transferRequest dtos.TransactionReque
 			userRepo.UpdateUserDetails(recipient)
 		}
 	}
+}
+
+func (transactionService TransactionServiceImpl) GetUsersTransactions(userID uint) []*models.Transaction {
+	var usersTransactions []*models.Transaction
+	transactions := transactionRepo.FindAllTransactions()
+	for _, transaction := range transactions {
+		if transaction.UserID == userID {
+			usersTransactions = append(usersTransactions, transaction)
+		}
+	}
+	return usersTransactions
 }

@@ -9,7 +9,12 @@
     <div class="container">
         <div class="table-header">
             <h2>Transactions</h2>
-            <p class="balance">(30USD, 40EUR, 60NGN)</p>
+            <p class="balance">
+                Balance
+                {{range .Balance}}
+                <span>({{.Amount}}{{.Currency}} )</span>
+                {{end}}
+            </p>
         </div>
 
 
@@ -22,36 +27,37 @@
                 <th scope="col">CURRENCY</th>
                 <th scope="col">DATE</th>
             </tr>
+            {{range .Transactions}}
             <tr class="row">
-                <td>1</td>
-                <td>01</td>
-                <td>02</td>
-                <td>500</td>
-                <td>USD</td>
-                <td></td>
+                <td>{{.UserID}}</td>
+                <td>{{.UserID}}</td>
+                <td>{{.ReceiversID}}</td>
+                <td>{{.Amount}}</td>
+                <td>{{.SourceCurrency}}</td>
+                <td>{{.CreatedAt}}</td>
             </tr>
+            {{end}}
+<!--            <tr class="row">-->
+<!--                <td>2</td>-->
+<!--                <td>01</td>-->
+<!--                <td>02</td>-->
+<!--                <td>500</td>-->
+<!--                <td>USD</td>-->
+<!--                <td></td>-->
+<!--            </tr>-->
 
-            <tr class="row">
-                <td>2</td>
-                <td>01</td>
-                <td>02</td>
-                <td>500</td>
-                <td>USD</td>
-                <td></td>
-            </tr>
-
-            <tr class="row">
-                <td>3</td>
-                <td>01</td>
-                <td>02</td>
-                <td>500</td>
-                <td>USD</td>
-                <td></td>
-            </tr>
+<!--            <tr class="row">-->
+<!--                <td>3</td>-->
+<!--                <td>01</td>-->
+<!--                <td>02</td>-->
+<!--                <td>500</td>-->
+<!--                <td>USD</td>-->
+<!--                <td></td>-->
+<!--            </tr>-->
 
         </table>
         <div class="table-header">
-            <a href="transaction.html" class="new-transaction">New +</a>
+            <a href="/transaction/new" class="new-transaction">New +</a>
         </div>
     </div>
 
