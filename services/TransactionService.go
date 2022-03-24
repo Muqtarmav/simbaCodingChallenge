@@ -1,23 +1,22 @@
 package services
 
 import (
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"github.com/jinzhu/gorm"
 	"log"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 )
 
 var (
-	transactionRepo repositories.TransactionRepository = &repositories.TransactionRepositoryImpl{}
+	transactionRepo data.TransactionRepository = &data.TransactionRepositoryImpl{}
 	rate            float64
 )
 
 type TransactionService interface {
 	Deposit(transferRequest dtos.TransactionRequest) dtos.TransactionResponse
 	ConvertMoney(request dtos.TransactionRequest) dtos.TransactionResponse
-	GetUsersTransactions(userID uint) []*models.Transaction
+	GetUsersTransactions(userID uint) []*data.Transaction
 }
 
 //TODOS
@@ -36,18 +35,18 @@ type TransactionServiceImpl struct {
 }
 
 func (transactionService TransactionServiceImpl) ConvertMoney(request dtos.TransactionRequest) dtos.TransactionResponse {
-	transaction := &models.Transaction{
+	transaction := &data.Transaction{
 		Amount:          request.Amount,
 		SourceCurrency:  request.SourceCurrency,
 		TargetCurrency:  request.TargetCurrency,
-		TransactionType: models.CONVERT,
+		TransactionType: data.CONVERT,
 	}
 
 	var convertedAmount float64
 	if request.Amount < 1 {
-		transaction.Status = models.FAILED
+		transaction.Status = data.FAILED
 		transactionRepo.Save(transaction)
-		return dtos.TransactionResponse{Status: models.FAILED}
+		return dtos.TransactionResponse{Status: data.FAILED}
 	}
 	foundUser := userRepo.FindById(request.UserID)
 	for index, balance := range foundUser.Balance {
@@ -67,22 +66,22 @@ func (transactionService TransactionServiceImpl) ConvertMoney(request dtos.Trans
 			log.Println("converted amount---->", convertedAmount)
 			log.Println("new balance---->", balance.Amount)
 			log.Println("found user---->", foundUser)
-			transaction.Status = models.SUCCESS
+			transaction.Status = data.SUCCESS
 			transactionRepo.Save(transaction)
 			userRepo.UpdateUserDetails(foundUser)
 			userAfterCurrencyConversion := userRepo.FindById(foundUser.ID)
 			return dtos.TransactionResponse{
 				UserID:          foundUser.ID,
-				TransactionType: models.CONVERT,
+				TransactionType: data.CONVERT,
 				Balance:         userAfterCurrencyConversion.Balance,
 				Transactions:    userAfterCurrencyConversion.Transactions,
-				Status:          models.SUCCESS,
+				Status:          data.SUCCESS,
 			}
 		}
 	}
-	transaction.Status = models.FAILED
+	transaction.Status = data.FAILED
 	transactionRepo.Save(transaction)
-	return dtos.TransactionResponse{Status: models.FAILED}
+	return dtos.TransactionResponse{Status: data.FAILED}
 }
 
 func (transactionService TransactionServiceImpl) Deposit(transferRequest dtos.TransactionRequest) dtos.TransactionResponse {
@@ -93,43 +92,43 @@ func (transactionService TransactionServiceImpl) Deposit(transferRequest dtos.Tr
 			log.Fatal(err.Error())
 		}
 	}(Db)
-	var sender *models.User
+	var sender *data.User
 
-	var transaction = models.Transaction{
+	var transaction = data.Transaction{
 		Amount:          transferRequest.Amount,
 		SourceCurrency:  transferRequest.SourceCurrency,
 		TargetCurrency:  transferRequest.TargetCurrency,
 		UserID:          transferRequest.UserID,
 		ReceiversID:     transferRequest.RecipientsID,
-		TransactionType: models.TRANSFER,
+		TransactionType: data.TRANSFER,
 	}
 	recipient, err := validateUser(transferRequest.RecipientsID)
 	if err != nil {
-		return dtos.TransactionResponse{Status: models.FAILED}
+		return dtos.TransactionResponse{Status: data.FAILED}
 	}
 
 	if transferRequest.UserID == 123456789 {
 		log.Println("----> admin transfer")
 		adminTransfer(recipient, transferRequest)
-		transaction.Status = models.SUCCESS
+		transaction.Status = data.SUCCESS
 		transactionRepo.Save(&transaction)
 		return dtos.TransactionResponse{
 			UserID:          transferRequest.UserID,
 			ReceiversID:     transferRequest.RecipientsID,
 			Amount:          transferRequest.Amount,
 			TransactionType: transferRequest.TransactionType,
-			Status:          models.SUCCESS,
+			Status:          data.SUCCESS,
 		}
 	}
 
 	sender, err = validateUser(transferRequest.UserID)
 	if err != nil {
-		transaction.Status = models.FAILED
+		transaction.Status = data.FAILED
 		transactionRepo.Save(&transaction)
-		return dtos.TransactionResponse{Status: models.FAILED}
+		return dtos.TransactionResponse{Status: data.FAILED}
 	} else {
 		if isValidDeposit(recipient, sender, transferRequest) {
-			transaction.Status = models.SUCCESS
+			transaction.Status = data.SUCCESS
 			transaction.ExchangeRate = rate
 			transactionRepo.Save(&transaction)
 			senderAfterSuccessfulTransfer := userRepo.FindById(sender.ID)
@@ -140,16 +139,16 @@ func (transactionService TransactionServiceImpl) Deposit(transferRequest dtos.Tr
 				Balance:         senderAfterSuccessfulTransfer.Balance,
 				Transactions:    senderAfterSuccessfulTransfer.Transactions,
 				TransactionType: transferRequest.TransactionType,
-				Status:          models.SUCCESS,
+				Status:          data.SUCCESS,
 			}
 		}
 	}
-	transaction.Status = models.FAILED
+	transaction.Status = data.FAILED
 	transactionRepo.Save(&transaction)
-	return dtos.TransactionResponse{Status: models.FAILED}
+	return dtos.TransactionResponse{Status: data.FAILED}
 }
 
-func isValidDeposit(recipient, sender *models.User, transferRequest dtos.TransactionRequest) bool {
+func isValidDeposit(recipient, sender *data.User, transferRequest dtos.TransactionRequest) bool {
 	for index, balance := range sender.Balance {
 		if balance.Currency == transferRequest.SourceCurrency &&
 			balance.Amount >= transferRequest.Amount {
@@ -167,7 +166,7 @@ func convertCurrency(rate, amount float64) float64 {
 	return rate * amount
 }
 
-func transfer(index int, recipient, sender *models.User, transferRequest dtos.TransactionRequest) {
+func transfer(index int, recipient, sender *data.User, transferRequest dtos.TransactionRequest) {
 	sender.Balance[index].Amount -= transferRequest.Amount
 	for index, balance := range recipient.Balance {
 		if balance.Currency == transferRequest.TargetCurrency {
@@ -178,7 +177,7 @@ func transfer(index int, recipient, sender *models.User, transferRequest dtos.Tr
 	}
 }
 
-func adminTransfer(recipient *models.User, transferRequest dtos.TransactionRequest) {
+func adminTransfer(recipient *data.User, transferRequest dtos.TransactionRequest) {
 	for index, balance := range recipient.Balance {
 		if balance.Currency == transferRequest.TargetCurrency {
 			recipient.Balance[index].Amount += transferRequest.Amount
@@ -187,13 +186,15 @@ func adminTransfer(recipient *models.User, transferRequest dtos.TransactionReque
 	}
 }
 
-func (transactionService TransactionServiceImpl) GetUsersTransactions(userID uint) []*models.Transaction {
-	var usersTransactions []*models.Transaction
+func (transactionService TransactionServiceImpl) GetUsersTransactions(userID uint) []*data.Transaction {
+	var usersTransactions []*data.Transaction
 	transactions := transactionRepo.FindAllTransactions()
 	for _, transaction := range transactions {
 		if transaction.UserID == userID {
+			log.Println("each transaction---->", transaction)
 			usersTransactions = append(usersTransactions, transaction)
 		}
 	}
+	log.Println(usersTransactions)
 	return usersTransactions
 }

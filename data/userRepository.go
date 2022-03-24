@@ -1,19 +1,18 @@
-package repositories
+package data
 
 import (
 	"log"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
 	"github.com/djfemz/simbaCodingChallenge/util"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type UserRepository interface {
-	Save(user *models.User) *models.User
-	FindById(id uint) *models.User
-	FindAllUsers() []*models.User
-	FindByEmail(email string) *models.User
+	Save(user *User) *User
+	FindById(id uint) *User
+	FindAllUsers() []*User
+	FindByEmail(email string) *User
 	DeleteById(id uint)
 }
 
@@ -32,7 +31,7 @@ func Connect() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Db.AutoMigrate(&models.User{}, &models.Transaction{}, &models.Money{})
+	Db.AutoMigrate(&User{}, &Transaction{}, &Money{}, &Session{})
 	log.Println("connected " + "to db")
 	return Db
 }
@@ -40,18 +39,18 @@ func Connect() *gorm.DB {
 type UserRepositoryImpl struct {
 }
 
-func (userRepo *UserRepositoryImpl) Save(user *models.User) *models.User {
+func (userRepo *UserRepositoryImpl) Save(user *User) *User {
 	// userRepo.l.Println("in save")
 	Db := Connect()
 	defer Db.Close()
-	savedUser := &models.User{}
+	savedUser := &User{}
 	Db.Create(user)
 	Db.Where("ID=?", user.ID).Find(&savedUser)
 	log.Println("saved user is -->", savedUser)
 	return savedUser
 }
 
-func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.User) {
+func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *User) {
 	Db := Connect()
 	defer func(Db *gorm.DB) {
 		err := Db.Close()
@@ -59,7 +58,7 @@ func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.Us
 			log.Fatal(err)
 		}
 	}(Db)
-	var user models.User
+	var user User
 	log.Println("user to be updated---->", userToBeUpdated)
 	Db.Preload("Balance").First(&user, userToBeUpdated.ID)
 	log.Println("user to be updated-->", userToBeUpdated)
@@ -68,7 +67,7 @@ func (userRepo *UserRepositoryImpl) UpdateUserDetails(userToBeUpdated *models.Us
 	Db.Save(user)
 }
 
-func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
+func (userRepo *UserRepositoryImpl) FindByEmail(email string) *User {
 	Db := Connect()
 	defer func(Db *gorm.DB) {
 		err := Db.Close()
@@ -76,7 +75,7 @@ func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
 			log.Fatal(err)
 		}
 	}(Db)
-	savedUser := &models.User{}
+	savedUser := &User{}
 	Db.Where("email=?", email).Preload("Balance").Preload("Transactions").Find(&savedUser)
 
 	if savedUser == nil {
@@ -85,19 +84,20 @@ func (userRepo *UserRepositoryImpl) FindByEmail(email string) *models.User {
 	return savedUser
 }
 
-func (userRepo *UserRepositoryImpl) FindById(id uint) *models.User {
+func (userRepo *UserRepositoryImpl) FindById(id uint) *User {
 	Db := Connect()
 	defer Db.Close()
-	savedUser := &models.User{}
-	Db.Omit("CreatedAt", "UpdatedAt", "DeletedAt").Where("id=?", id).Omit("CreatedAt", "UpdatedAt", "DeletedAt").Preload("Balance").
+	savedUser := &User{}
+	Db.Omit("CreatedAt", "UpdatedAt", "DeletedAt").Where("id=?", id).
+		Omit("CreatedAt", "UpdatedAt", "DeletedAt").Preload("Balance").
 		Preload("Transactions").Find(&savedUser).Omit("CreatedAt", "UpdatedAt", "DeletedAt")
 	return savedUser
 }
 
-func (userRepo *UserRepositoryImpl) FindAllUsers() []*models.User {
+func (userRepo *UserRepositoryImpl) FindAllUsers() []*User {
 	Db := Connect()
 	defer Db.Close()
-	var users []*models.User
+	var users []*User
 	Db.Find(&users)
 	return users
 }
@@ -105,5 +105,5 @@ func (userRepo *UserRepositoryImpl) FindAllUsers() []*models.User {
 func (userRepo *UserRepositoryImpl) DeleteById(id uint) {
 	Db := Connect()
 	defer Db.Close()
-	Db.Where("Id=?", id).Delete(&models.User{})
+	Db.Where("Id=?", id).Delete(&User{})
 }

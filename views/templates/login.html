@@ -13,6 +13,7 @@
                <label for="name">name:  </label><input type="text" name="name" id="name"> <br/>
                <label for="email">email: </label><input type="email" name="email" id="email"> <br/>
                <label for="password">password(minimum 8 characters):  </label><input type="password" name="password" id="password"> <br/>
+               {{ .csrfField }}
                <button type="submit" id="signup-button">Register</button>
            </form>
        </div>
@@ -22,6 +23,7 @@
            <form action="/user/login" method="POST">
                <label for="email">email: </label><input type="email"  name="email" id="signinemail"> <br/>
                <label for="password">password:  </label><input type="password" name="password" id="signinpassword"> <br/>
+               {{ .csrfField }}
                <button type="submit" id="login-button">login</button>
            </form>
        </div>

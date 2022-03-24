@@ -1,14 +1,16 @@
 package dtos
 
-import "github.com/djfemz/simbaCodingChallenge/data/models"
+import (
+	"github.com/djfemz/simbaCodingChallenge/data"
+)
 
 type TransactionResponse struct {
 	UserID          uint
 	ReceiversID     uint
 	Amount          float64
-	Balance         []models.Money
-	Transactions    []models.Transaction
+	Balance         []data.Money
+	Transactions    []data.Transaction
 	Image           string
-	TransactionType models.TransactionType
-	Status          models.TransactionStatus
+	TransactionType data.TransactionType
+	Status          data.TransactionStatus
 }

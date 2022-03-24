@@ -1,19 +1,18 @@
 package services_test
 
 import (
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"log"
 	"testing"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/djfemz/simbaCodingChallenge/services"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	userService services.UserService        = &services.UserServiceImpl{}
-	userRepo    repositories.UserRepository = &repositories.UserRepositoryImpl{}
+	userService services.UserService = &services.UserServiceImpl{}
+	userRepo    data.UserRepository  = &data.UserRepositoryImpl{}
 )
 
 func TestThatUserCanBeRegistered(t *testing.T) {
@@ -58,7 +57,7 @@ func TestThatEveryRegisteredUserGets_1000_USD_Upon_Registration(t *testing.T) {
 	//assert that balance is not empty
 	assert.NotEmpty(t, savedUser.Balance)
 	for _, balance := range savedUser.Balance {
-		if balance.Currency == models.DOLLAR {
+		if balance.Currency == data.data.DOLLAR {
 			assert.Equal(t, 1000.00, balance.Amount)
 		}
 	}

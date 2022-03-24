@@ -1,8 +1,7 @@
 package services
 
 import (
-	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/djfemz/simbaCodingChallenge/data/repositories"
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -11,21 +10,22 @@ import (
 
 var (
 	Db                 *gorm.DB
-	userRepo           = repositories.UserRepositoryImpl{}
+	userRepo           = data.UserRepositoryImpl{}
 	transactionService = TransactionServiceImpl{}
 )
 
 type UserService interface {
 	Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse
 	Login(loginRequest dtos.LoginRequest) dtos.LoginResponse
-	GetAccountBalance(userID uint) (float64, error)
+	//GetAccountBalance(userID uint) (float64, error)
+	GetUser(userID uint) (*data.User, error)
 }
 
 type UserServiceImpl struct {
 }
 
 func setUp() {
-	Db = repositories.Connect()
+	Db = data.Connect()
 }
 
 func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse {
@@ -46,25 +46,25 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 			log.Println("couldn't hash password")
 			return dtos.AddUserResponse{}
 		}
-		var user = &models.User{
+		var user = &data.User{
 			Name:     addUserDto.Name,
 			Email:    addUserDto.Email,
 			Password: password,
-			Balance: []models.Money{
-				{Amount: 0, Currency: models.EURO},
-				{Amount: 0, Currency: models.NAIRA},
-				{Amount: 0, Currency: models.DOLLAR},
+			Balance: []data.Money{
+				{Amount: 0, Currency: data.EURO},
+				{Amount: 0, Currency: data.NAIRA},
+				{Amount: 0, Currency: data.DOLLAR},
 			},
-			Transactions: []models.Transaction{},
+			Transactions: []data.Transaction{},
 		}
 		savedUser := userRepo.Save(user)
 		var transferRequest = dtos.TransactionRequest{
 			Amount:          1000,
-			SourceCurrency:  models.DOLLAR,
-			TargetCurrency:  models.DOLLAR,
+			SourceCurrency:  data.DOLLAR,
+			TargetCurrency:  data.DOLLAR,
 			UserID:          123456789,
 			RecipientsID:    savedUser.ID,
-			TransactionType: models.TRANSFER,
+			TransactionType: data.TRANSFER,
 		}
 
 		response := transactionService.Deposit(transferRequest)
@@ -76,13 +76,18 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 	}
 }
 
-func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
-	savedUser := userRepo.FindById(userID)
-	log.Println("user-->", savedUser)
-	transactions := savedUser.Transactions
+//func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
+//	savedUser := userRepo.FindById(userID)
+//	log.Println("user-->", savedUser)
+//	transactions := savedUser.Transactions
+//
+//	log.Println(transactions)
+//	return 0, nil
+//}
 
-	log.Println(transactions)
-	return 0, nil
+func (userServiceImpl *UserServiceImpl) GetUser(userID uint) (*data.User, error) {
+	savedUser := userRepo.FindById(userID)
+	return savedUser, nil
 }
 
 func (userServiceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dtos.LoginResponse {
@@ -108,7 +113,7 @@ func (userServiceImpl *UserServiceImpl) Login(loginRequest dtos.LoginRequest) dt
 	}
 }
 
-func validateUser(userID uint) (*models.User, error) {
+func validateUser(userID uint) (*data.User, error) {
 	user := userRepo.FindById(userID)
 	return user, nil
 }

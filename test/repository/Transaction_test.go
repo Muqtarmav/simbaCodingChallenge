@@ -1,27 +1,26 @@
 package test
 
 import (
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"testing"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/util"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	Db                                                 = repositories.Connect()
-	transactionRepo repositories.TransactionRepository = &repositories.TransactionRepositoryImpl{}
+	Db                                         = data.Connect()
+	transactionRepo data.TransactionRepository = &data.TransactionRepositoryImpl{}
 )
 
-func transactionSetUp() []*models.Transaction {
-	return []*models.Transaction{{
+func transactionSetUp() []*data.Transaction {
+	return []*data.Transaction{{
 		Amount:         200.00,
-		SourceCurrency: models.DOLLAR,
+		SourceCurrency: data.DOLLAR,
 	},
 		{
 			Amount:         100.00,
-			SourceCurrency: models.DOLLAR,
+			SourceCurrency: data.DOLLAR,
 		},
 	}
 }

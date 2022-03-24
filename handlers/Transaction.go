@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"github.com/djfemz/simbaCodingChallenge/data/models"
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/djfemz/simbaCodingChallenge/services"
+	"github.com/gorilla/csrf"
 	"log"
 	"net/http"
 	"strconv"
 	"text/template"
-	"time"
 )
 
 type Transaction struct{}
@@ -18,7 +18,7 @@ var (
 )
 
 func (transaction *Transaction) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	transactionType := req.FormValue("transaction")
+	transactionType := req.FormValue("transaction-type")
 	if req.URL.Path == "/transaction" &&
 		transactionType == "transfer" && req.Method == http.MethodPost {
 		transfer(rw, req)
@@ -33,27 +33,29 @@ func (transaction *Transaction) ServeHTTP(rw http.ResponseWriter, req *http.Requ
 }
 
 func newTransaction(rw http.ResponseWriter, req *http.Request) {
+	log.Println("request for new transaction---->", req)
+	session, err := data.ReturnSession(rw, req)
+	if err != nil {
+		log.Fatal(err)
+	}
 	tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/" +
 		"simbaCodingChallenge/views/templates/transaction.html"))
-	//userID, err := strconv.Atoi(req.FormValue("userID"))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	err := tmpl.Execute(rw, 13)
+
+	err = tmpl.Execute(rw, map[string]interface{}{
+		csrf.TemplateTag: csrf.TemplateField(req),
+		"UserID":         session.UserID,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func transactionOverview(rw http.ResponseWriter, req *http.Request) {
-	userID, err := strconv.Atoi(req.FormValue("userID"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	usersTransactions := transactionService.GetUsersTransactions(uint(userID))
+	request := getRequestParameters(req)
+	usersTransactions := transactionService.GetUsersTransactions(request.UserID)
 	tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/" +
 		"views/templates/overview.html"))
-	err = tmpl.Execute(rw, usersTransactions)
+	err := tmpl.Execute(rw, usersTransactions)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,35 +66,33 @@ func NewTransaction() *Transaction {
 }
 
 func transfer(rw http.ResponseWriter, req *http.Request) {
-	log.Println("here---->")
+	log.Println("here---->in transfer")
 
 	transactionRequest := getRequestParameters(req)
-	transactionRequest.TransactionType = models.TRANSFER
+	transactionRequest.TransactionType = data.TRANSFER
 	response := transactionService.Deposit(transactionRequest)
-	if response.Status == models.SUCCESS {
-		response.Image = "/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/views/img/successful.png"
-		tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/" +
-			"views/templates/succesful-transaction.html"))
-		err := tmpl.Execute(rw, response)
+	tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/"+
+		"views/templates/"+
+		"failed-transaction.html", "/home/djfemz/Documents/goworkspace/github.com/"+
+		"simbaCodingChallenge/views/templates/overview.html", "/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/"+
+		"views/templates/succesful-transaction.html"))
+	if response.Status == data.SUCCESS {
+		err := tmpl.ExecuteTemplate(rw, "succesful-transaction.html", response)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		response.Image = "/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/views/img/icons8-multiply-90.png"
-		tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/simbaCodingChallenge/" +
-			"views/templates/succesful-transaction.html"))
-		err := tmpl.Execute(rw, response)
+		err := tmpl.ExecuteTemplate(rw, "failed-transaction.html", response)
 		if err != nil {
 			log.Fatal(err)
 		}
-		time.Sleep(time.Second * 2)
-		http.Redirect(rw, req, "/transaction/overview", http.StatusTemporaryRedirect)
 	}
+	transactionOverview(rw, req)
 }
 
 func convert(rw http.ResponseWriter, req *http.Request) {
 	transactionRequest := getRequestParameters(req)
-	transactionRequest.TransactionType = models.CONVERT
+	transactionRequest.TransactionType = data.CONVERT
 	response := transactionService.ConvertMoney(transactionRequest)
 	tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/" +
 		"simbaCodingChallenge/views/templates/overview.html"))
@@ -130,12 +130,12 @@ func getRequestParameters(req *http.Request) dtos.TransactionRequest {
 	return transactionRequest
 }
 
-func checkCurrency(currency string) models.Currency {
+func checkCurrency(currency string) data.Currency {
 	if currency == "USD" {
-		return models.DOLLAR
+		return data.DOLLAR
 	} else if currency == "EUR" {
-		return models.EURO
+		return data.EURO
 	} else {
-		return models.NAIRA
+		return data.NAIRA
 	}
 }

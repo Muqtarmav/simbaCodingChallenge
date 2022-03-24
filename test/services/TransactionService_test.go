@@ -1,10 +1,10 @@
 package services_test
 
 import (
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"log"
 	"testing"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
 	"github.com/djfemz/simbaCodingChallenge/dtos"
 	"github.com/djfemz/simbaCodingChallenge/services"
 	"github.com/stretchr/testify/assert"
@@ -15,27 +15,27 @@ var transactionService services.TransactionService = services.TransactionService
 func TestThatAUserCanTransferVirtual_CashToOtherUsers(t *testing.T) {
 	var transferRequest = dtos.TransactionRequest{
 		Amount:          50,
-		SourceCurrency:  models.DOLLAR,
-		TargetCurrency:  models.DOLLAR,
+		SourceCurrency:  data.DOLLAR,
+		TargetCurrency:  data.DOLLAR,
 		UserID:          2,
 		RecipientsID:    uint(3),
-		TransactionType: models.TRANSFER,
+		TransactionType: data.data.TRANSFER,
 	}
 
 	transferResponse := transactionService.Deposit(transferRequest)
 	assert.NotEmpty(t, transferResponse)
 	log.Println("transfer response -->", transferResponse)
-	assert.Equal(t, models.SUCCESS, transferResponse.Status)
+	assert.Equal(t, data.SUCCESS, transferResponse.Status)
 }
 
 func TestThatTransferFailsWhenUserHasInsufficientFunds(t *testing.T) {
 	var transferRequest = dtos.TransactionRequest{
 		Amount:          40000,
-		SourceCurrency:  models.DOLLAR,
-		TargetCurrency:  models.DOLLAR,
+		SourceCurrency:  data.DOLLAR,
+		TargetCurrency:  data.DOLLAR,
 		UserID:          uint(2),
 		RecipientsID:    uint(3),
-		TransactionType: models.TRANSFER,
+		TransactionType: data.data.TRANSFER,
 	}
 	sender := userRepo.FindById(transferRequest.UserID)
 	assert.NotEmpty(t, sender)
@@ -56,11 +56,11 @@ func TestThatTransferFailsWhenUserHasInsufficientFunds(t *testing.T) {
 func TestThatUserCanSendToTargetCurrencyDuringTransfer(t *testing.T) {
 	var transferRequest = dtos.TransactionRequest{
 		Amount:          50,
-		SourceCurrency:  models.DOLLAR,
-		TargetCurrency:  models.NAIRA,
+		SourceCurrency:  data.DOLLAR,
+		TargetCurrency:  data.NAIRA,
 		UserID:          uint(3),
 		RecipientsID:    uint(2),
-		TransactionType: models.TRANSFER,
+		TransactionType: data.data.TRANSFER,
 	}
 	response := transactionService.Deposit(transferRequest)
 	log.Println(response)
@@ -70,10 +70,10 @@ func TestThatUserCanSendToTargetCurrencyDuringTransfer(t *testing.T) {
 func TestThatUserCanConvertMoneyBetweenWallets(t *testing.T) {
 	transactionRequest := dtos.TransactionRequest{
 		UserID:          24,
-		SourceCurrency:  models.DOLLAR,
-		TargetCurrency:  models.NAIRA,
+		SourceCurrency:  data.DOLLAR,
+		TargetCurrency:  data.NAIRA,
 		Amount:          100.00,
-		TransactionType: models.CONVERT,
+		TransactionType: data.data.CONVERT,
 	}
 
 	foundUser := userRepo.FindById(transactionRequest.UserID)

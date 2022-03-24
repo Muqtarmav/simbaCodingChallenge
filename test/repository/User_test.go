@@ -1,12 +1,11 @@
 package test
 
 import (
+	"github.com/djfemz/simbaCodingChallenge/data"
 	"github.com/jinzhu/gorm"
 	"log"
 	"testing"
 
-	"github.com/djfemz/simbaCodingChallenge/data/models"
-	"github.com/djfemz/simbaCodingChallenge/data/repositories"
 	"github.com/djfemz/simbaCodingChallenge/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,8 +14,8 @@ var (
 	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{}
 )
 
-func setUp() []*models.User {
-	return []*models.User{
+func setUp() []*data.data {
+	return []*data.User{
 		{
 			Name:     "Janey Doe",
 			Email:    "janeydoe@email.com",

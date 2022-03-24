@@ -1,9 +1,11 @@
 package dtos
 
-import "github.com/djfemz/simbaCodingChallenge/data/models"
+import (
+	"github.com/djfemz/simbaCodingChallenge/data"
+)
 
 type AddUserResponse struct {
 	ID      uint
 	Name    string
-	Balance []models.Money
+	Balance []data.Money
 }

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var (
@@ -36,12 +37,7 @@ func signup(rw http.ResponseWriter, req *http.Request) {
 	log.Println("sent to user service----<")
 	response := userService.Register(registerForm)
 	if response.ID > 0 {
-		tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/" +
-			"simbaCodingChallenge/views/templates/overview.html"))
-		err := tmpl.Execute(rw, response)
-		if err != nil {
-			log.Fatal(err)
-		}
+		login(rw, req)
 	} else {
 		log.Println("redirecting in signup---->", response)
 		http.Redirect(rw, req, "/", http.StatusSeeOther)
@@ -58,8 +54,28 @@ func login(rw http.ResponseWriter, req *http.Request) {
 	tmpl := template.Must(template.ParseFiles("/home/djfemz/Documents/goworkspace/github.com/" +
 		"simbaCodingChallenge/views/templates/overview.html"))
 	if response.Message == "user loggedin successfully" {
+		user, err := userService.GetUser(response.ID)
+		log.Println("user retrieved---->", user)
+		if err != nil {
+			log.Fatal(err)
+		}
+		session, err := user.CreateSession()
+		if err != nil {
+			log.Fatal("error creating session---->", err)
+		}
+		log.Println("session after creation---->", session)
+		cookie := http.Cookie{
+			Name:     "_cookie",
+			Value:    strconv.Itoa(int(session.UserID)),
+			HttpOnly: true,
+			Path:     "/",
+		}
+
+		http.SetCookie(rw, &cookie)
+		log.Println("cookie sent to browser---->", cookie)
 		log.Println("response---->", response)
-		err := tmpl.Execute(rw, response)
+		log.Println("header----->", rw.Header())
+		err = tmpl.Execute(rw, response)
 		if err != nil {
 			log.Fatal(err)
 		}

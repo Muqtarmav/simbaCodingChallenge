@@ -1,13 +1,11 @@
 .container{
     font-family: "Fira Code";
     width: 900px;
-    height: 600px;
+    height: 800px;
     background-color: #c5ebff;
     margin-left: 450px;
-    margin-top: 150px;
     border-radius: 20px;
 }
-
 
 
 #signup-button{
@@ -63,7 +61,7 @@ h3{
 
 }
 
-#user-id{
+.user-id{
     margin-left: 10px;
     border-radius: 10px;
     width: 320px;

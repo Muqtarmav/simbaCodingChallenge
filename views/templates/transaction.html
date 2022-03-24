@@ -11,10 +11,15 @@
       <h3>New Transaction</h3>
       <form role="form" action="/transaction" method="POST">
           <div class="user">
-              <label  for="user-id">UserID: </label><input type="text" name="user-id" readonly value={{.}} id="user-id"> <br/>
+              {{range .}}
+              <label  for="user-id">UserID: </label><input type="text" name="user-id" readonly value={{$.UserID}} class="user-id"> <br/>
           </div>
           <div class="user">
               <label id="recipient-tag" for="recipient">RecipientID: </label><input type="text" name="recipient" id="recipient"> <br/>
+          </div>
+
+          <div class="user">
+              <label id="amounts" for="user-id">Amount: </label><input type="text" name="amount" class="user-id"> <br/>
           </div>
 
           <div class="user">
@@ -53,9 +58,10 @@
                   </select>
               </label> <br/>
           </div>
+          {{ $.csrfField }}
           <button type="submit" id="signup-button">Transfer</button>
       </form>
   </div>
-
+    {{end}}
 </body>
 </html>

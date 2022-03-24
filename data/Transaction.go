@@ -1,4 +1,4 @@
-package models
+package data
 
 import (
 	"github.com/jinzhu/gorm"
@@ -17,6 +17,7 @@ const (
 type Transaction struct {
 	gorm.Model
 	Amount          float64
+	Balance         []Money
 	SourceCurrency  Currency
 	TargetCurrency  Currency
 	ExchangeRate    float64
