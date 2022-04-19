@@ -57,7 +57,7 @@ func TestThatEveryRegisteredUserGets_1000_USD_Upon_Registration(t *testing.T) {
 	//assert that balance is not empty
 	assert.NotEmpty(t, savedUser.Balance)
 	for _, balance := range savedUser.Balance {
-		if balance.Currency == data.data.DOLLAR {
+		if balance.Currency == data.DOLLAR {
 			assert.Equal(t, 1000.00, balance.Amount)
 		}
 	}

@@ -19,7 +19,7 @@ func TestThatAUserCanTransferVirtual_CashToOtherUsers(t *testing.T) {
 		TargetCurrency:  data.DOLLAR,
 		UserID:          2,
 		RecipientsID:    uint(3),
-		TransactionType: data.data.TRANSFER,
+		TransactionType: data.TRANSFER,
 	}
 
 	transferResponse := transactionService.Deposit(transferRequest)
@@ -35,7 +35,7 @@ func TestThatTransferFailsWhenUserHasInsufficientFunds(t *testing.T) {
 		TargetCurrency:  data.DOLLAR,
 		UserID:          uint(2),
 		RecipientsID:    uint(3),
-		TransactionType: data.data.TRANSFER,
+		TransactionType: data.TRANSFER,
 	}
 	sender := userRepo.FindById(transferRequest.UserID)
 	assert.NotEmpty(t, sender)
@@ -60,7 +60,7 @@ func TestThatUserCanSendToTargetCurrencyDuringTransfer(t *testing.T) {
 		TargetCurrency:  data.NAIRA,
 		UserID:          uint(3),
 		RecipientsID:    uint(2),
-		TransactionType: data.data.TRANSFER,
+		TransactionType: data.TRANSFER,
 	}
 	response := transactionService.Deposit(transferRequest)
 	log.Println(response)
@@ -73,7 +73,7 @@ func TestThatUserCanConvertMoneyBetweenWallets(t *testing.T) {
 		SourceCurrency:  data.DOLLAR,
 		TargetCurrency:  data.NAIRA,
 		Amount:          100.00,
-		TransactionType: data.data.CONVERT,
+		TransactionType: data.CONVERT,
 	}
 
 	foundUser := userRepo.FindById(transactionRequest.UserID)

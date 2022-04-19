@@ -17,7 +17,7 @@ var (
 type UserService interface {
 	Register(addUserDto dtos.AddUserRequest) dtos.AddUserResponse
 	Login(loginRequest dtos.LoginRequest) dtos.LoginResponse
-	//GetAccountBalance(userID uint) (float64, error)
+	GetAccountBalance(userID uint) (float64, error)
 	GetUser(userID uint) (*data.User, error)
 }
 
@@ -76,14 +76,14 @@ func (userServiceImpl *UserServiceImpl) Register(addUserDto dtos.AddUserRequest)
 	}
 }
 
-//func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
-//	savedUser := userRepo.FindById(userID)
-//	log.Println("user-->", savedUser)
-//	transactions := savedUser.Transactions
-//
-//	log.Println(transactions)
-//	return 0, nil
-//}
+func (userServiceImpl *UserServiceImpl) GetAccountBalance(userID uint) (float64, error) {
+	savedUser := userRepo.FindById(userID)
+	log.Println("user-->", savedUser)
+	transactions := savedUser.Transactions
+
+	log.Println(transactions)
+	return 0, nil
+}
 
 func (userServiceImpl *UserServiceImpl) GetUser(userID uint) (*data.User, error) {
 	savedUser := userRepo.FindById(userID)

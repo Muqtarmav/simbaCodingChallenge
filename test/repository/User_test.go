@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	userRepo repositories.UserRepository = &repositories.UserRepositoryImpl{}
+	userRepo data.UserRepository = &data.UserRepositoryImpl{}
 )
 
-func setUp() []*data.data {
+func setUp() []*data.User {
 	return []*data.User{
 		{
 			Name:     "Janey Doe",

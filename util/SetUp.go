@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//DeleteCreatedModels clears models that are created during tests
+//Delete CreatedModels clears models that are created during tests
 func DeleteCreatedModels(db *gorm.DB) func() {
 	type entity struct {
 		table   string
