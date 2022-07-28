@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overview</title>
+    <link rel="stylesheet" href="../static/overview.css">
+</head>
+<body>
+    <div class="container">
+        <div class="table-header">
+            <h2>Transactions</h2>
+            <p class="balance">
+                Balance
+                {{range .Balance}}
+                <span>({{.Amount}}{{.Currency}} )</span>
+                {{end}}
+            </p>
+        </div>
+
+
+        <table>
+            <tr class="headers">
+                <th scope="col">ID</th>
+                <th scope="col">FROM</th>
+                <th scope="col">TO</th>
+                <th scope="col">VALUE</th>
+                <th scope="col">CURRENCY</th>
+                <th scope="col">DATE</th>
+            </tr>
+            {{range .Transactions}}
+            <tr class="row">
+                <td>{{.UserID}}</td>
+                <td>{{.UserID}}</td>
+                <td>{{.ReceiversID}}</td>
+                <td>{{.Amount}}</td>
+                <td>{{.SourceCurrency}}</td>
+                <td>{{.CreatedAt}}</td>
+            </tr>
+            {{end}}
+<!--            <tr class="row">-->
+<!--                <td>2</td>-->
+<!--                <td>01</td>-->
+<!--                <td>02</td>-->
+<!--                <td>500</td>-->
+<!--                <td>USD</td>-->
+<!--                <td></td>-->
+<!--            </tr>-->
+
+<!--            <tr class="row">-->
+<!--                <td>3</td>-->
+<!--                <td>01</td>-->
+<!--                <td>02</td>-->
+<!--                <td>500</td>-->
+<!--                <td>USD</td>-->
+<!--                <td></td>-->
+<!--            </tr>-->
+
+        </table>
+        <div class="table-header">
+            <a href="/transaction/new" class="new-transaction">New +</a>
+        </div>
+    </div>
+
+</body>
+</html>
