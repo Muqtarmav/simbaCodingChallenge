@@ -12,15 +12,15 @@ pipeline {
         stage('Pre Test') {
             steps {
                 echo 'Installing dependencies'
-                bat 'go version'
-                bat 'go get -u golang.org/x/lint/golint'
+                sh 'go version'
+                sh 'go get -u golang.org/x/lint/golint'
             }
         }
         
         stage('Build') {
             steps {
                 echo 'Compiling and building'
-                bat 'go build'
+                sh 'go build'
             }
         }
 
