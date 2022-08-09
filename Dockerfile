@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build
+RUN go build github.com/Muqtarmav/simbaCodingChallenge
 
 EXPOSE 8080
 
