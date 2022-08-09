@@ -12,4 +12,4 @@ RUN go build
 
 EXPOSE 7000
 
-CMD ["./main"]
+CMD ["go", "main"]
