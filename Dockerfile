@@ -12,4 +12,4 @@ RUN go build
 
 EXPOSE 8080
 
-CMD [ "go", "./main" ]
+CMD [ "go", "main" ]
