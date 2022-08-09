@@ -6,10 +6,10 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
-COPY *.go ./
+COPY . ./
 
-RUN go build github.com/Muqtarmav/simbaCodingChallenge/Dockerfile
+RUN go build 
 
 EXPOSE 8080
 
-#CMD [ "/main.go" ]
+CMD [ "/main.go" ]
