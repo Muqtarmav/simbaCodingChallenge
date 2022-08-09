@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build github.com/Muqtarmav/simbaCodingChallenge
+RUN go build github.com/Muqtarmav/simbaCodingChallenge/Dockerfile
 
 EXPOSE 8080
 
