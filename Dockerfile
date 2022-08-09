@@ -8,8 +8,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /simbaCodingChallenge
+RUN go build -o 
 
 EXPOSE 8080
 
-CMD [ "/simbaCodingChallenge" ]
+#CMD [ "/simbaCodingChallenge" ]
