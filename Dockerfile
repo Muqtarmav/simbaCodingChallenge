@@ -12,5 +12,5 @@ COPY . ./
 
 EXPOSE 7000
 
-#CMD ["./main"]
-ENTRYPOINT ["./main"]
+CMD ["go", "run", "./main.go"]
+#ENTRYPOINT ["./main"]
