@@ -13,4 +13,4 @@ RUN go build
 EXPOSE 7000
 
 #CMD ["./main"]
-ENTRYPOINT ["go" "./main"]
+ENTRYPOINT ["./main"]
