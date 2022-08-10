@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN go build 
+#RUN go build 
 
 EXPOSE 7000
 
